@@ -276,3 +276,6 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .back-top:hover { background: #FFFFFF; color: #000000; }
 .copyright { position: absolute; right: 0; top: 0; font-size: 11px; color: #B8B8B8; }
 .footer__giant { display: block; font-family: var(--font-display); font-weight: 900; font-size: 26vw; line-height: 0.74; letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1.5px #FFFFFF; margin-bottom: -1vw; }
+
+.tracklist__link { color: var(--navy); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--navy); }
+.tracklist__link:hover { color: #1D4F86; }

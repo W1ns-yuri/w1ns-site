@@ -1,6 +1,6 @@
 import { channels } from '../data/content.js';
 
-const marquee = 'TRAP / RAGE / SUPERTRAP / AMBIENT / COLD 808 / W1NS / '.repeat(2);
+const marquee = 'TRAP / SUPERTRAP / LOVE MUSIC / AMBIENT / DNB / EXPERIMENTAL / W1NS / '.repeat(2);
 
 // Футер на весь экран в стиле HUD: бегущая строка, кнопки со срезанными углами, радар.
 export default function Footer() {

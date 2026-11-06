@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { topNav } from '../data/content.js';
 
 // Hero: два размытых фото плавно сменяют друг друга (анимации в CSS),
@@ -36,7 +37,7 @@ export default function Hero() {
           <div className="drop-card">
             <img className="drop-card__cover" src="/covers/escape.webp" alt="" width="88" height="88" />
             <div className="drop-card__info">
-              <span className="mono-label">NEW DROP · 5 ТРЕКОВ</span>
+              <span className="mono-label">ФИЛЬМ В 5 БИТАХ · W1NS × CASSETTE</span>
               <span className="drop-card__title">ESCAPE</span>
               <span className="eq" aria-hidden="true">
                 {bars.map((d, i) => (
@@ -44,11 +45,11 @@ export default function Hero() {
                 ))}
               </span>
             </div>
-            <a href="#albums" className="drop-card__play" aria-label="Слушать ESCAPE">
+            <Link to="/escape" className="drop-card__play" aria-label="Открыть ESCAPE">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5l12 7-12 7z" />
               </svg>
-            </a>
+            </Link>
           </div>
           <div className="chips">
             <span>3 РЕЛИЗА</span>

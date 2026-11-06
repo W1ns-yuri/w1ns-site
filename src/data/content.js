@@ -26,8 +26,8 @@ export const releases = [
     type: 'album',
     meta: 'АЛЬБОМ · 5 ТРЕКОВ',
     cover: '/covers/escape.webp',
-    // TODO: заменить на точные названия
-    tracks: ['[Трек 1]', '[Трек 2]', '[Трек 3]', '[Трек 4]', '[Трек 5]'],
+    page: '/escape',
+    tracks: ['Creepy_Night', 'Running_From_Fear', 'Got_Lost', 'Memory', 'Escape'],
   },
   {
     id: 'velvet',
@@ -56,18 +56,20 @@ export const packPreview = Array.from({ length: 23 }, (_, i) =>
 );
 
 export const timeline = [
-  { year: 'сейчас', what: 'React-разработчик, биты по вечерам' },
-  { year: '[год]', what: 'Первый бит в FL Studio' },
-  { year: '[год]', what: 'Нашёл свой звук: rage и cold trap' },
+  { year: '9 класс', what: 'Спор с другом: первый бит за 3 дня' },
+  { year: 'потом', what: 'Переход с Ableton на FL Studio' },
+  { year: 'сейчас', what: 'React днём, биты по вечерам' },
 ];
 
 export const stack = ['FL STUDIO', 'REACT', 'JS', 'SUPABASE', '808', 'SERUM'];
 
 export const genres = [
-  { name: 'TRAP', bpm: '130–150 BPM', desc: 'Классика: тяжёлый 808, хэты с роллами, мрачные мелодии.', a: '#1D4F86', b: '#5B9BD5' },
-  { name: 'RAGE', bpm: '150–170 BPM', desc: 'Перегруженные синты и бас, который рвёт колонки.', a: '#7DF9D4', b: '#1D4F86' },
-  { name: 'SUPERTRAP', bpm: '140–160 BPM', desc: 'Плотнее и быстрее трапа, больше слоёв и энергии.', a: '#5B9BD5', b: '#A8E6CF' },
+  { name: 'TRAP', bpm: '130–150 BPM', desc: 'База: тяжёлый 808, хэты с роллами, мрачные мелодии.', a: '#1D4F86', b: '#5B9BD5' },
+  { name: 'SUPERTRAP', bpm: '140–160 BPM', desc: 'Плотнее и быстрее трапа: больше слоёв и энергии.', a: '#5B9BD5', b: '#A8E6CF' },
+  { name: 'LOVE MUSIC', bpm: 'медленно', desc: 'Мягкие аккорды и тёплый бас, когда хочется чувств, а не агрессии.', a: '#7DF9D4', b: '#1D4F86' },
   { name: 'AMBIENT', bpm: '60–90 BPM', desc: 'Воздух, пэды и тишина между ударами.', a: '#A8E6CF', b: '#EAF3F6' },
+  { name: 'DNB', bpm: '170–175 BPM', desc: 'Быстрые брейки и рычащий бас, чтобы разогнать пульс.', a: '#0A2FB8', b: '#00C2FF' },
+  { name: 'EXPERIMENTAL', bpm: 'без правил', desc: 'Этника, оркестр, странные паттерны. Бит как кино или шоу.', a: '#04145C', b: '#7DF9D4' },
 ];
 
 export const channels = [

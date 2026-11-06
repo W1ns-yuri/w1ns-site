@@ -9,7 +9,7 @@ export default function About() {
           <div>
             <h2 className="about__title">Заходи в мой<br />холодный мир</h2>
             <p className="about__lead">
-              Днём пишу интерфейсы на React, ночью собираю биты в FL Studio. Люблю жёсткий 808 и тишину между ударами.
+              Я Юрий из Туркменистана. Пишу биты с 9 класса: начал со спора, а остался из-за любви к звуку. Шарю за кучу жанров и люблю, когда бит звучит как кино.
             </p>
           </div>
           <a href="#contacts" className="btn-dark">Написать мне</a>
@@ -20,7 +20,7 @@ export default function About() {
             <div className="card--photo__glow" aria-hidden="true" />
             <div className="card--photo__circle" aria-hidden="true" />
             <span className="card--photo__placeholder">[ТВОЁ ФОТО]</span>
-            <span className="pill pill--top">Пишу биты с [года]</span>
+            <span className="pill pill--top">Пишу биты с 9 класса</span>
             <div className="timeline">
               {timeline.map((t) => (
                 <div key={t.what} className="timeline__row">
@@ -40,8 +40,8 @@ export default function About() {
           </div>
 
           <div className="card card--quote">
-            <span className="pill">Подход</span>
-            <p>«Если бит не качает на телефонном динамике, он не готов».</p>
+            <span className="pill">Как всё началось</span>
+            <p>Друг хвастался, что написал бит. Я попросил неделю, чтобы сделать лучше. Хватило трёх дней.</p>
             <div className="card--quote__sign"><b>W1NS</b><span>битмейкер</span></div>
           </div>
 

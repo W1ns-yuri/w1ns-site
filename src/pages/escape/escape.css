@@ -1,0 +1,234 @@
+/* =========================================================
+   ESCAPE — фильм в пяти битах
+   Палитра из обложки: ночь, бирюзовая вспышка, кислотный зелёный, электрический синий.
+   ========================================================= */
+.esc {
+  --void: #020405;
+  --forest: #041014;
+  --teal: #49C6C9;
+  --acid: #23E05A;
+  --electric: #1530FF;
+  --flare: #E8FFFB;
+  --bar: 7vh;
+  position: fixed; inset: 0;
+  background: var(--void); color: #E9F4F2;
+  font-family: var(--font-body);
+}
+
+@keyframes esc-grain { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-3%,2%); } 40% { transform: translate(2%,-3%); } 60% { transform: translate(-2%,-1%); } 80% { transform: translate(3%,3%); } }
+@keyframes esc-flare { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.85; } 50% { transform: translate(-50%,-50%) scale(1.18); opacity: 1; } }
+@keyframes esc-glitch-a { 0%,86%,100% { transform: translate(0,0); clip-path: inset(0 0 0 0); } 88% { transform: translate(-6px,2px); clip-path: inset(20% 0 55% 0); } 92% { transform: translate(5px,-2px); clip-path: inset(60% 0 10% 0); } }
+@keyframes esc-glitch-b { 0%,84%,100% { transform: translate(0,0); clip-path: inset(0 0 0 0); } 87% { transform: translate(7px,0); clip-path: inset(40% 0 30% 0); } 91% { transform: translate(-4px,1px); clip-path: inset(5% 0 75% 0); } }
+@keyframes esc-morse { 0%,100% { opacity: 0.18; } 6%,14% { opacity: 1; box-shadow: 0 0 14px var(--teal); } }
+@keyframes esc-pulse-ring { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes esc-firefly { 0%,100% { transform: translate(0,0); opacity: 0.2; } 50% { transform: translate(var(--dx), var(--dy)); opacity: 1; } }
+@keyframes esc-vibrate { 0%,70%,100% { transform: rotate(-4deg) translate(0,0); } 72%,76%,80%,84% { transform: rotate(-4deg) translate(-3px,0); } 74%,78%,82%,86% { transform: rotate(-4deg) translate(3px,0); } }
+@keyframes esc-sub { 0% { opacity: 0; transform: translateY(6px); } 8%,70% { opacity: 1; transform: none; } 100% { opacity: 0.25; } }
+@keyframes esc-siren-r { 0%,49% { opacity: 0.85; } 50%,100% { opacity: 0.05; } }
+@keyframes esc-siren-b { 0%,49% { opacity: 0.05; } 50%,100% { opacity: 0.85; } }
+@keyframes esc-ecg { from { stroke-dashoffset: 2400; } to { stroke-dashoffset: 0; } }
+@keyframes esc-shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-2px,1px); } 40% { transform: translate(2px,-1px); } 60% { transform: translate(-1px,-2px); } 80% { transform: translate(1px,2px); } }
+@keyframes esc-drift { 0% { transform: translate(0,0); opacity: 0; } 20%,80% { opacity: 0.35; } 100% { transform: translate(var(--x), -40px); opacity: 0; } }
+@keyframes esc-needle { 0% { transform: rotate(0deg); } 20% { transform: rotate(140deg); } 35% { transform: rotate(80deg); } 55% { transform: rotate(300deg); } 70% { transform: rotate(250deg); } 100% { transform: rotate(720deg); } }
+@keyframes esc-string { 0%,100% { transform: translateY(0); } 25% { transform: translateY(-3px); } 75% { transform: translateY(3px); } }
+@keyframes esc-polaroid { 0%,100% { opacity: 0.25; filter: blur(6px); } 50% { opacity: 0.85; filter: blur(1px); } }
+@keyframes esc-drop { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+@keyframes esc-rain { from { transform: translateY(-20vh); } to { transform: translateY(110vh); } }
+@keyframes esc-lightning { 0%,92%,100% { opacity: 0; } 93% { opacity: 0.9; } 94% { opacity: 0.1; } 95% { opacity: 0.7; } 97% { opacity: 0; } }
+@keyframes esc-bird { 0%,100% { transform: translate(0,0) scaleY(1); } 50% { transform: translate(40px,-14px) scaleY(0.5); } }
+@keyframes esc-roll { from { transform: translateY(40%); } to { transform: translateY(0); } }
+
+/* ---------- Плёнка ---------- */
+.esc-grain {
+  position: fixed; inset: -10%; z-index: 40; pointer-events: none; opacity: 0.16; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: esc-grain 0.6s steps(4) infinite;
+}
+.esc-scan { position: fixed; inset: 0; z-index: 41; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px); }
+
+/* ---------- Киношные полосы ---------- */
+.esc-bar {
+  position: fixed; left: 0; right: 0; height: var(--bar); z-index: 30; background: #000;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: #9FB6B2;
+}
+.esc-bar--top { top: 0; }
+.esc-bar--bottom { bottom: 0; }
+.esc-back { color: #E9F4F2; text-decoration: none; font-weight: 700; padding: 10px 0; }
+.esc-back:hover { color: var(--teal); }
+.esc-rec { display: flex; align-items: center; gap: 8px; color: #E9F4F2; }
+.esc-rec__dot { width: 8px; height: 8px; border-radius: 50%; background: #FF3B3B; animation: blink 1.2s ease-in-out infinite; }
+.esc-morse-tiny { letter-spacing: 0.3em; color: var(--teal); }
+
+/* ---------- Скроллер со снапом ---------- */
+.esc-scroller { position: absolute; inset: 0; overflow-y: auto; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.esc-frame { position: relative; height: 100vh; scroll-snap-align: start; overflow: hidden; padding: calc(var(--bar) + 40px) 48px calc(var(--bar) + 40px); }
+
+/* ---------- Общая типографика ---------- */
+.esc-kicker { margin: 0; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); }
+.esc-kicker--dark { color: #3A2A08; }
+.esc-num { font-family: var(--font-mono); font-size: 13px; color: var(--teal); letter-spacing: 0.2em; }
+.esc-scene-title { margin: 8px 0 18px; font-family: var(--font-display); font-weight: 900; font-size: clamp(44px, 6vw, 88px); line-height: 0.95; letter-spacing: -0.03em; text-shadow: -2px 0 rgba(21,48,255,0.7), 2px 0 rgba(35,224,90,0.55); }
+.esc-scene-title.is-shaking { animation: esc-shake 0.25s linear infinite; }
+.esc-lead { margin: 0 0 14px; font-size: 21px; line-height: 1.4; font-weight: 500; max-width: 560px; }
+.esc-story { margin: 0 0 18px; font-size: 15px; line-height: 1.65; color: #A9C2BE; max-width: 560px; }
+.esc-tags { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.esc-tags li { font-family: var(--font-mono); font-size: 11px; padding: 6px 10px; border: 1px solid rgba(73,198,201,0.4); color: #CFE9E6; }
+.mono { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--teal); }
+.esc-actions { display: flex; gap: 10px; }
+.esc-preview { height: 46px; padding: 0 18px; display: inline-flex; align-items: center; gap: 10px; background: transparent; color: #E9F4F2; border: 1px solid #E9F4F2; font-family: var(--font-mono); font-size: 12px; cursor: pointer; transition: background 150ms, color 150ms; }
+.esc-preview:hover, .esc-preview.is-on { background: #E9F4F2; color: var(--void); }
+.esc-preview__icon { display: inline-flex; }
+.esc-ghost-btn { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border: 1px solid currentColor; background: transparent; color: inherit; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-decoration: none; cursor: pointer; }
+.esc-ghost-btn:hover { background: #E9F4F2; color: var(--void); }
+
+/* Субтитры: белый текст на чёрной плашке, как в кино */
+.esc-subs { position: absolute; left: 50%; bottom: calc(var(--bar) + 22px); transform: translateX(-50%); z-index: 5; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 80vw; }
+.esc-subs span { padding: 5px 10px; background: rgba(0,0,0,0.78); font-size: 14px; color: #FFFFFF; opacity: 0; animation: esc-sub 9.6s ease-out infinite; }
+
+.esc-scene__text { position: relative; z-index: 4; height: 100%; display: flex; flex-direction: column; justify-content: center; max-width: 620px; }
+
+/* ---------- ПРОЛОГ ---------- */
+.esc-title { display: flex; align-items: center; justify-content: center; text-align: center; background: radial-gradient(60% 50% at 50% 55%, #062126 0%, var(--void) 70%); }
+.esc-flare { position: absolute; left: 50%; top: 52%; width: 70vmin; height: 70vmin; border-radius: 50%; background: radial-gradient(circle, rgba(232,255,251,0.95) 0%, rgba(73,198,201,0.55) 12%, rgba(21,48,255,0.25) 35%, rgba(2,4,5,0) 68%); filter: blur(6px); animation: esc-flare 6s ease-in-out infinite; }
+.esc-flare::after { content: ''; position: absolute; left: -40vw; right: -40vw; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, rgba(35,224,90,0.8), rgba(232,255,251,1), rgba(73,198,201,0.8), transparent); filter: blur(1px); }
+.esc-title__inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.esc-glitch { position: relative; margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(90px, 17vw, 260px); line-height: 0.85; letter-spacing: -0.04em; color: #F2FFFD; mix-blend-mode: screen; }
+.esc-glitch::before, .esc-glitch::after { content: attr(data-text); position: absolute; inset: 0; }
+.esc-glitch::before { color: var(--electric); animation: esc-glitch-a 4s steps(1) infinite; mix-blend-mode: screen; left: -4px; }
+.esc-glitch::after { color: var(--acid); animation: esc-glitch-b 5s steps(1) infinite; mix-blend-mode: screen; left: 4px; }
+.esc-tagline { margin: 0; font-family: var(--font-display); font-weight: 300; font-size: 22px; letter-spacing: 0.02em; }
+.esc-morse { display: flex; align-items: center; gap: 6px; height: 14px; margin: 10px 0 6px; }
+.esc-morse span { display: block; height: 6px; background: var(--teal); border-radius: 3px; animation: esc-morse 4.4s ease-in-out infinite; }
+.esc-morse .dot { width: 6px; }
+.esc-morse .dash { width: 22px; }
+.esc-morse .gap { width: 10px; background: transparent; animation: none; }
+.esc-start { position: relative; height: 56px; padding: 0 28px; border: 1px solid #E9F4F2; background: rgba(2,4,5,0.4); color: #E9F4F2; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.12em; cursor: pointer; }
+.esc-start:hover { background: #E9F4F2; color: var(--void); }
+.esc-start__ring { position: absolute; inset: -1px; border: 1px solid var(--teal); animation: esc-pulse-ring 2s ease-out infinite; pointer-events: none; }
+.esc-hint { margin: 0; font-family: var(--font-mono); font-size: 11px; color: #7E9894; }
+
+/* ---------- 01 Creepy_Night ---------- */
+.esc-night { background: var(--forest); }
+.esc-night__bg { position: absolute; inset: -5%; background: url(/covers/escape.webp) center / cover; filter: blur(3px) saturate(1.2) brightness(0.75); transform: scale(1.05); }
+.esc-night::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,4,5,0.92) 0%, rgba(2,4,5,0.55) 50%, rgba(2,4,5,0.1) 100%); z-index: 1; }
+.esc-fireflies { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.esc-fireflies span { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 10px var(--acid);
+  left: calc(45% + var(--i) * 3.6%); top: calc(25% + (var(--i) * 37 % 50) * 1%);
+  --dx: calc((var(--i) - 7) * 6px); --dy: calc(-20px - var(--i) * 2px);
+  animation: esc-firefly calc(3s + var(--i) * 0.4s) ease-in-out infinite; animation-delay: calc(var(--i) * -0.7s); }
+.esc-phone { position: absolute; right: 12vw; top: 24vh; z-index: 3; width: 220px; padding: 18px; border-radius: 22px; background: rgba(4,16,20,0.75); border: 1px solid rgba(73,198,201,0.45); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 6px; animation: esc-vibrate 3.2s ease-in-out infinite; box-shadow: 0 0 40px rgba(73,198,201,0.25); }
+.esc-phone__time { font-family: var(--font-display); font-weight: 300; font-size: 44px; line-height: 1; }
+.esc-phone__msg { font-family: var(--font-mono); font-size: 12px; color: #FF6B6B; letter-spacing: 0.15em; }
+.esc-phone__sub { font-size: 12px; color: #A9C2BE; }
+
+/* ---------- 02 Running_From_Fear ---------- */
+.esc-run { background: #04070B; }
+.esc-siren { position: absolute; top: -20%; width: 70vw; height: 70vw; border-radius: 50%; filter: blur(120px); z-index: 0; }
+.esc-siren--red { left: -25vw; background: #FF2A3D; animation: esc-siren-r 0.9s steps(1) infinite; }
+.esc-siren--blue { right: -25vw; background: var(--electric); animation: esc-siren-b 0.9s steps(1) infinite; }
+.esc-ecg { position: absolute; left: 0; right: 0; bottom: 22vh; width: 100%; height: 160px; z-index: 1; opacity: 0.8; }
+.esc-ecg polyline { fill: none; stroke: #E9F4F2; stroke-width: 2; stroke-dasharray: 2400; animation: esc-ecg 3.5s linear infinite; filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
+
+/* ---------- 03 Got_Lost ---------- */
+.esc-lost { background: radial-gradient(70% 70% at 70% 50%, #08262B 0%, var(--void) 70%); }
+.esc-lost__where { position: absolute; right: 6vw; top: 50%; transform: translateY(-50%); z-index: 1; font-family: var(--font-display); font-weight: 900; font-size: 15vw; line-height: 0.9; color: transparent; -webkit-text-stroke: 2px rgba(73,198,201,0.55); filter: url(#esc-warp); }
+.esc-lost__echoes span { position: absolute; z-index: 1; font-family: var(--font-mono); font-size: 13px; color: #6F8E8A; --x: 20px; animation: esc-drift 7s ease-in-out infinite; }
+.esc-lost__echoes span:nth-child(1) { right: 34vw; top: 22vh; animation-delay: 0s; }
+.esc-lost__echoes span:nth-child(2) { right: 14vw; top: 30vh; animation-delay: 1.4s; --x: -30px; }
+.esc-lost__echoes span:nth-child(3) { right: 22vw; top: 68vh; animation-delay: 2.8s; }
+.esc-lost__echoes span:nth-child(4) { right: 40vw; top: 72vh; animation-delay: 4.2s; --x: -10px; }
+.esc-lost__echoes span:nth-child(5) { right: 8vw; top: 62vh; animation-delay: 5.6s; --x: 30px; }
+.esc-compass { position: absolute; right: 8vw; bottom: calc(var(--bar) + 80px); z-index: 2; width: 90px; height: 90px; border-radius: 50%; border: 1px solid rgba(73,198,201,0.5); }
+.esc-compass::before { content: 'N'; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 10px; color: var(--teal); }
+.esc-compass__needle { position: absolute; left: 50%; top: 10px; bottom: 10px; width: 2px; margin-left: -1px; background: linear-gradient(180deg, #FF6B6B 50%, #E9F4F2 50%); animation: esc-needle 6s ease-in-out infinite; }
+
+/* ---------- 04 Memory ---------- */
+.esc-memory { background: #05090C; }
+.esc-memory__glow { position: absolute; right: 10vw; top: 15vh; width: 50vw; height: 60vh; border-radius: 50%; background: radial-gradient(circle, rgba(255,214,150,0.22) 0%, rgba(73,198,201,0.12) 45%, transparent 70%); filter: blur(30px); }
+.esc-polaroids { position: absolute; right: 36vw; top: 14vh; z-index: 1; }
+.esc-polaroids span { position: absolute; width: 150px; height: 175px; padding: 10px 10px 34px; background: #EDEAE4; animation: esc-polaroid 7s ease-in-out infinite; }
+.esc-polaroids span::after { content: ''; display: block; width: 100%; height: 100%; background: radial-gradient(circle at 40% 40%, #F3D9A8, #8FB8C9 60%, #3A5866); filter: blur(4px); }
+.esc-polaroids span:nth-child(1) { transform: rotate(-8deg); left: 0; top: 0; }
+.esc-polaroids span:nth-child(2) { transform: rotate(5deg); left: 130px; top: 40px; animation-delay: 2.3s; }
+.esc-polaroids span:nth-child(3) { transform: rotate(-2deg); left: 60px; top: 160px; animation-delay: 4.6s; }
+.esc-strings { position: absolute; right: 6vw; bottom: calc(var(--bar) + 120px); z-index: 3; width: 34vw; display: flex; flex-direction: column; gap: 12px; }
+.esc-string { height: 14px; padding: 0; background: transparent; border: none; cursor: pointer; position: relative; }
+.esc-string::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, #E9F4F2, transparent); }
+.esc-string:hover::before { animation: esc-string 0.08s linear 6; background: linear-gradient(90deg, transparent, var(--teal), transparent); height: 2px; }
+.esc-strings__hint { font-family: var(--font-mono); font-size: 10px; color: #6F8E8A; text-align: right; }
+.esc-door { position: absolute; right: 4vw; top: calc(var(--bar) + 40px); z-index: 3; width: 120px; height: 200px; padding: 0; background: #0B1418; border: 1px solid rgba(233,244,242,0.5); cursor: pointer; perspective: 600px; }
+.esc-door__leaf { position: absolute; inset: 0; background: linear-gradient(90deg, #13232A, #0A1418); border-right: 1px solid rgba(233,244,242,0.25); transform-origin: left center; transition: transform 1.2s cubic-bezier(.3,.1,.2,1); z-index: 2; }
+.esc-door__leaf::after { content: ''; position: absolute; right: 12px; top: 50%; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+.esc-door__light { position: absolute; inset: 0; background: radial-gradient(circle at 50% 60%, var(--flare), rgba(73,198,201,0.4) 50%, transparent 80%); z-index: 1; }
+.esc-door.is-open .esc-door__leaf { transform: rotateY(-75deg); }
+.esc-door__label { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-mono); font-size: 10px; color: #E9F4F2; letter-spacing: 0.1em; }
+.esc-drop { margin: 0 0 22px; display: flex; flex-direction: column; gap: 8px; }
+.esc-drop__bars { display: flex; gap: 14px; }
+.esc-drop__bar { display: flex; gap: 4px; padding: 6px; border: 1px solid rgba(233,244,242,0.2); }
+.esc-drop__bar span { width: 26px; height: 26px; background: rgba(233,244,242,0.08); }
+.esc-drop__bar span.expected { background: transparent; border: 1px dashed #6F8E8A; }
+.esc-drop__bar span.real { background: var(--teal); box-shadow: 0 0 14px var(--teal); }
+.esc-drop__legend { font-family: var(--font-mono); font-size: 10px; color: #7E9894; display: flex; align-items: center; gap: 6px; }
+.esc-drop__legend i { display: inline-block; width: 10px; height: 10px; }
+.esc-drop__legend i.expected { border: 1px dashed #6F8E8A; }
+.esc-drop__legend i.real { background: var(--teal); margin-left: 8px; }
+
+/* ---------- 05 Escape: дом и картина ---------- */
+.esc-house { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: #06080A; }
+.esc-house__wall { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, #0A0E10 0 80px, #080B0D 80px 82px), radial-gradient(50% 60% at 72% 50%, rgba(232,255,251,0.08), transparent 70%); }
+.esc-house__text { position: relative; z-index: 2; }
+.esc-drops { display: flex; align-items: flex-end; gap: 8px; height: 60px; margin: 0 0 22px; }
+.esc-drops span { width: 34px; height: calc(var(--d) * 25%); display: flex; align-items: flex-end; }
+.esc-drops span i { display: block; width: 100%; height: 100%; background: linear-gradient(180deg, var(--flare), var(--teal)); transform-origin: bottom; animation: esc-drop calc(1.4s - var(--d) * 0.2s) ease-in-out infinite; }
+.esc-drops em { font-style: normal; font-family: var(--font-mono); font-size: 10px; color: #7E9894; margin-left: 8px; }
+.esc-house .esc-subs { left: 50%; }
+
+.esc-painting { position: relative; z-index: 2; justify-self: center; width: min(42vw, 62vh); aspect-ratio: 1; padding: 0; border: none; background: radial-gradient(circle, #F4E3A1, #E2B64A 60%, #9C7420); cursor: pointer; box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 120px rgba(73,198,201,0.18); }
+.esc-painting__half { position: absolute; top: 0; bottom: 0; width: 50%; background: url(/covers/escape.webp) no-repeat; background-size: 200% 100%; transition: transform 0.9s cubic-bezier(.6,.05,.3,1); }
+.esc-painting__half--l { left: 0; background-position: left center; clip-path: polygon(0 0, 100% 0, 92% 18%, 100% 34%, 90% 52%, 100% 70%, 93% 86%, 100% 100%, 0 100%); }
+.esc-painting__half--r { right: 0; background-position: right center; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 7% 86%, 0 70%, 10% 52%, 0 34%, 8% 18%); margin-left: -8%; width: 58%; }
+.esc-painting__frame { position: absolute; inset: -18px; border: 14px solid #1A1410; outline: 1px solid #3A2E22; box-shadow: inset 0 0 0 2px #5A4632; pointer-events: none; }
+.esc-painting__cta { position: absolute; left: 50%; bottom: -52px; transform: translateX(-50%); white-space: nowrap; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; color: #E9F4F2; padding: 10px 16px; border: 1px solid rgba(233,244,242,0.4); }
+.esc-painting:hover .esc-painting__cta { background: #E9F4F2; color: var(--void); }
+.esc-painting.is-torn .esc-painting__half--l { transform: translateX(-60%) rotate(-14deg); }
+.esc-painting.is-torn .esc-painting__half--r { transform: translateX(60%) rotate(12deg); }
+
+/* ---------- Поле ---------- */
+.esc-field { display: flex; align-items: center; color: #2A1E06; }
+.esc-field__sky { position: absolute; inset: 0; background: linear-gradient(180deg, #CFE8F2 0%, #F4F0DA 55%, #F7E3A0 70%); }
+.esc-field__sun { position: absolute; right: 18vw; top: 26vh; width: 22vmin; height: 22vmin; border-radius: 50%; background: radial-gradient(circle, #FFFBEA 0%, #FFE9A8 40%, rgba(255,233,168,0) 70%); filter: blur(4px); }
+.esc-field__wheat { position: absolute; left: 0; right: 0; bottom: 0; height: 42%; background:
+  repeating-linear-gradient(98deg, rgba(150,104,24,0.35) 0 2px, transparent 2px 9px),
+  repeating-linear-gradient(84deg, rgba(255,240,180,0.35) 0 1px, transparent 1px 7px),
+  linear-gradient(180deg, #F2C95A 0%, #D9A436 45%, #9C6E1E 100%); }
+.esc-field__birds span { position: absolute; width: 22px; height: 8px; border-top: 2px solid #2A1E06; border-radius: 50% 50% 0 0; left: calc(20vw + var(--i) * 6vw); top: calc(22vh + var(--i) * 2.4vh); animation: esc-bird calc(3s + var(--i) * 0.5s) ease-in-out infinite; }
+.esc-field__text { position: relative; z-index: 2; max-width: 620px; display: flex; flex-direction: column; gap: 14px; }
+.esc-field__title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(70px, 11vw, 170px); line-height: 0.85; letter-spacing: -0.04em; color: #1C1405; padding-bottom: 0.08em; }
+.esc-field__lead { margin: 0; font-size: 20px; line-height: 1.45; color: #3A2A08; }
+.esc-morse-line { margin: 0; font-family: var(--font-mono); font-size: 22px; letter-spacing: 0.35em; color: #1C1405; }
+
+/* ---------- Гроза ---------- */
+.esc-storm { display: flex; align-items: center; background: linear-gradient(180deg, #0B1216 0%, #141B1E 60%, #3A3524 100%); }
+.esc-lightning { position: absolute; inset: 0; background: #E8F3FF; opacity: 0; animation: esc-lightning 7s linear infinite; pointer-events: none; }
+.esc-rain span { position: absolute; top: 0; left: calc(var(--i) * 1.7%); width: 1px; height: 14vh; background: linear-gradient(180deg, transparent, rgba(220,235,240,0.55)); animation: esc-rain calc(0.7s + (var(--i) * 13 % 7) * 0.08s) linear infinite; animation-delay: calc(var(--i) * -0.11s); opacity: 0.35; }
+.esc-storm.is-raining .esc-rain span { opacity: 0.85; }
+.esc-storm__text { position: relative; z-index: 2; max-width: 640px; display: flex; flex-direction: column; gap: 18px; }
+.esc-storm__title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(54px, 8vw, 120px); line-height: 0.9; letter-spacing: -0.03em; }
+.esc-storm__lead { margin: 0; font-size: 19px; line-height: 1.55; color: #B7C7C4; }
+.esc-storm .esc-ghost-btn { align-self: flex-start; }
+
+/* ---------- Титры ---------- */
+.esc-credits { display: flex; justify-content: center; align-items: center; text-align: center; background: #000; }
+.esc-credits__roll { display: flex; flex-direction: column; align-items: center; gap: 26px; animation: esc-roll 2.4s cubic-bezier(.2,.8,.2,1) both; }
+.esc-credits__big { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 64px; letter-spacing: -0.03em; }
+.esc-credits dl { display: grid; grid-template-columns: auto auto; gap: 8px 28px; margin: 0; font-size: 15px; }
+.esc-credits dt { text-align: right; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; color: #7E9894; text-transform: uppercase; align-self: center; }
+.esc-credits dd { margin: 0; text-align: left; font-weight: 600; }
+.esc-credits__tracks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 14px; }
+.esc-credits__tracks span { color: var(--teal); margin-right: 12px; }
+.esc-credits__note { margin: 0; font-size: 13px; color: #7E9894; }
+
+@media (prefers-reduced-motion: reduce) {
+  .esc-subs span { opacity: 1; }
+}
