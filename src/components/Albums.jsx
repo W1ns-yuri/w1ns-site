@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { releases, packPreview } from '../data/content.js';
-import { getAudio, startPreview, stopPreview } from '../audio/engine.js';
+import { getAudio, startPreview, stopPreview, playFile } from '../audio/engine.js';
 
 // Альбомы: клик по обложке открывает треклист, наведение на трек играет превью.
 export default function Albums() {
@@ -20,7 +20,8 @@ export default function Albums() {
 
   function enter(i) {
     setHovered(i);
-    startPreview(openIndex * 7 + i);
+    if (open.previews?.[i]) playFile(open.previews[i]); // настоящий бит
+    else startPreview(openIndex * 7 + i);               // пока заглушка
   }
 
   function leave() {

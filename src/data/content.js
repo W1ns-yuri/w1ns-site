@@ -28,15 +28,18 @@ export const releases = [
     cover: '/covers/escape.webp',
     page: '/escape',
     tracks: ['Creepy_Night', 'Running_From_Fear', 'Got_Lost', 'Memory', 'Escape'],
+    // 30-секундные превью (самая громкая часть трека, обычно дроп)
+    previews: ['creepy-night', 'running', 'got-lost', 'memory', 'escape'].map((f) => `/audio/escape/${f}.mp3`),
   },
   {
-    id: 'velvet',
-    title: 'VELVET',
+    id: 'moon',
+    title: 'MOON',
     code: 'W1-002',
     type: 'album',
-    meta: 'АЛЬБОМ · 7 ТРЕКОВ',
-    cover: '/covers/velvet.webp',
-    tracks: ['[Трек 1]', '[Трек 2]', '[Трек 3]', '[Трек 4]', '[Трек 5]', '[Трек 6]', '[Трек 7]'],
+    meta: 'АЛЬБОМ · 6 ТРЕКОВ',
+    cover: '/covers/moon.webp',
+    // TODO: точные названия треков
+    tracks: ['[Трек 1]', '[Трек 2]', '[Трек 3]', '[Трек 4]', '[Трек 5]', '[Трек 6]'],
   },
   {
     id: 'scorpion',

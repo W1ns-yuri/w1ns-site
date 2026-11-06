@@ -53,7 +53,7 @@ export default function Hero() {
           </div>
           <div className="chips">
             <span>3 РЕЛИЗА</span>
-            <span>12 ТРЕКОВ</span>
+            <span>11 ТРЕКОВ</span>
             <span>100 СЭМПЛОВ</span>
           </div>
         </div>

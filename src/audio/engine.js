@@ -109,6 +109,24 @@ export function startPreview(seed) {
 export function stopPreview() {
   if (stubTimer) clearInterval(stubTimer);
   stubTimer = null;
+  stopFile();
+}
+
+// Настоящее превью из mp3. Один плеер на весь сайт: новый трек выключает старый.
+let player = null;
+export function playFile(url, onEnd) {
+  stopPreview();
+  player = new Audio(url);
+  player.volume = 0.9;
+  player.onended = () => { player = null; if (onEnd) onEnd(); };
+  player.play().catch(() => {});
+}
+
+export function stopFile() {
+  if (!player) return;
+  player.pause();
+  player.onended = null;
+  player = null;
 }
 
 // ---------------------------------------------------------

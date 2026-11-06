@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { scenes, morseWord } from './scenes.js';
 import {
-  getAudio, startPreview, stopPreview, playMorse, morseCode, pluckNote,
+  getAudio, stopPreview, playFile, playMorse, morseCode, pluckNote,
   creak, tear, birds, rain, thunder, forest,
 } from '../../audio/engine.js';
 import './escape.css';
@@ -47,7 +47,7 @@ export default function EscapePage() {
   function togglePreview(i) {
     getAudio();
     if (playing === i) { stopPreview(); setPlaying(null); return; }
-    startPreview(10 + i * 3);
+    playFile(`/audio/escape/${scenes[i].id}.mp3`, () => setPlaying(null));
     setPlaying(i);
   }
 
@@ -304,7 +304,7 @@ function PreviewButton({ active, onClick }) {
       <svg className="esc-preview__icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         {active ? <path d="M6 5h4v14H6zM14 5h4v14h-4z" /> : <path d="M8 5l12 7-12 7z" />}
       </svg>
-      {active ? 'СТОП' : 'ПРЕВЬЮ (ЗАГЛУШКА)'}
+      {active ? 'СТОП' : 'СЛУШАТЬ ПРЕВЬЮ · 0:30'}
     </button>
   );
 }
