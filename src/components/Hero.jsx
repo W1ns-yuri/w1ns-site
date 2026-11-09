@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { topNav } from '../data/content.js';
 
-// Hero: два размытых фото плавно сменяют друг друга (анимации в CSS),
+// Hero: размытое фото на фоне медленно «дышит» (анимация в CSS),
 // сверху навигация, справа виджет нового релиза, снизу огромный W1NS.
 export default function Hero() {
   const bars = [0.9, 0.6, 1.1, 0.75, 0.5, 0.95, 0.68, 1.2, 0.55, 0.85, 0.7, 1];
@@ -9,7 +9,6 @@ export default function Hero() {
   return (
     <section id="hero" className="section hero" aria-label="W1NS">
       <div className="hero__bg hero__bg--a" aria-hidden="true" />
-      <div className="hero__bg hero__bg--b" aria-hidden="true" />
       <div className="hero__vignette" aria-hidden="true" />
 
       <div className="hero__content">

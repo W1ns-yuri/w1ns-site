@@ -58,11 +58,14 @@ export const packPreview = Array.from({ length: 23 }, (_, i) =>
   `${kinds[i % kinds.length]} · ${String(i + 1).padStart(3, '0')}`
 );
 
+// Что уже выпущено — для карточки «Обо мне» на главной.
 export const timeline = [
-  { year: '9 класс', what: 'Спор с другом: первый бит за 3 дня' },
-  { year: 'потом', what: 'Переход с Ableton на FL Studio' },
-  { year: 'сейчас', what: 'React днём, биты по вечерам' },
+  { year: 'ESCAPE', what: 'альбом · 5 треков · с CASSETTE' },
+  { year: 'MOON', what: 'альбом · 6 треков' },
+  { year: 'SCORPION', what: 'сэмпл-пак · 100 сэмплов' },
 ];
+
+export const styles = ['TRAP', 'SUPERTRAP', 'LOVE MUSIC', 'AMBIENT', 'DNB', 'EXPERIMENTAL'];
 
 export const stack = ['FL STUDIO', 'REACT', 'JS', 'SUPABASE', '808', 'SERUM'];
 
