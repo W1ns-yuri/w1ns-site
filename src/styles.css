@@ -83,10 +83,14 @@ html.lenis, html.lenis body { height: auto; }
    HERO
    ========================================================= */
 .hero { background: var(--ink); color: #FFFFFF; }
+/* Hero полностью накрыт следующей секцией: прячем, чтобы браузер его не рисовал. */
+.hero.is-away { visibility: hidden; }
 /* Обёртка фона: двигается против мышки (параллакс) и при загрузке «наводит фокус». */
 .hero__bg-wrap {
   position: absolute; inset: -4%;
   transform: translate3d(calc(var(--mx, 0) * -18px), calc(var(--my, 0) * -12px), 0);
+  /* --zoom растёт при скролле (GSAP): камера «наезжает» на фон, пока About накрывает hero. */
+  scale: var(--zoom, 1);
   animation: focus-pull 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .hero__bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
@@ -213,7 +217,9 @@ html.lenis, html.lenis body { height: auto; }
 /* =========================================================
    ALBUMS
    ========================================================= */
-.albums { background: var(--frost); }
+.albums { background: var(--night); }
+/* Ледяной слой с пятнами света. GSAP раскрывает его кругом (clip-path) из-за стопки обложек. */
+.albums__ice { position: absolute; inset: 0; background: var(--frost); overflow: hidden; }
 .albums__glow { position: absolute; border-radius: 50%; }
 .albums__glow--a { width: 30vw; height: 30vw; right: 6vw; top: -10vw; background: var(--mint); filter: blur(100px); opacity: 0.5; }
 .albums__glow--b { width: 36vw; height: 36vw; left: -10vw; bottom: -14vw; background: var(--glacier); filter: blur(110px); opacity: 0.45; }
@@ -223,12 +229,28 @@ html.lenis, html.lenis body { height: auto; }
 .covers--small { --size: 180px; }
 /* Пока треклист закрыт, ряд обложек стоит по центру по вертикали, а не прилипает к заголовку. */
 .covers:not(.covers--small) { margin-block: auto; }
+/* Кнопка-обложка: только размер и «сцена» для 3D (perspective). Картинка и наклон — на .cover__face. */
 .cover {
-  position: relative; overflow: hidden; width: var(--size); height: var(--size); padding: 0; cursor: pointer;
-  border: 1px solid rgba(10,37,64,0.2); background-color: var(--navy); background-size: cover; background-position: center;
+  position: relative; width: var(--size); height: var(--size); padding: 0; cursor: pointer;
+  border: 0; background: none; perspective: 900px;
   transition: width 500ms cubic-bezier(.2,.8,.2,1), height 500ms cubic-bezier(.2,.8,.2,1), opacity 300ms;
 }
-.cover.is-open { border: 3px solid var(--navy); }
+.cover__face {
+  position: absolute; inset: 0; overflow: hidden; display: block;
+  border: 1px solid rgba(10,37,64,0.2); background-color: var(--navy); background-size: cover; background-position: center;
+  /* --tx / --ty: где мышка на обложке, от -1 до 1 (пишет Albums.jsx). */
+  transform: rotateX(calc(var(--ty, 0) * -10deg)) rotateY(calc(var(--tx, 0) * 10deg));
+  transition: transform 220ms ease-out, box-shadow 300ms ease-out;
+}
+.cover:hover .cover__face { box-shadow: 0 30px 60px -20px rgba(10,37,64,0.55); }
+.covers--small .cover__face { transform: none; }
+/* Блик: светлое пятно, которое ездит за мышкой. */
+.cover__glare {
+  position: absolute; inset: 0; opacity: 0; transition: opacity 300ms ease-out; mix-blend-mode: soft-light;
+  background: radial-gradient(circle at calc(50% + var(--tx, 0) * 50%) calc(50% + var(--ty, 0) * 50%), rgba(255,255,255,0.9), rgba(255,255,255,0) 60%);
+}
+.cover:hover .cover__glare { opacity: 1; }
+.cover.is-open .cover__face { border: 3px solid var(--navy); }
 .cover.is-dim { opacity: 0.55; }
 .cover__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1,4,11,0) 40%, rgba(1,4,11,0.85) 100%); }
 .cover__code { position: absolute; right: 12px; top: 14px; font-family: var(--font-mono); font-size: 10px; color: #FFFFFF; border: 1px solid #FFFFFF; padding: 3px 6px; }
@@ -252,6 +274,11 @@ html.lenis, html.lenis body { height: auto; }
 .sample.is-on { background: var(--mint); }
 .sample--more { background: transparent; color: var(--muted-light); }
 
+/* Столбики тьмы внизу Albums. Пока секция уезжает вверх, GSAP растягивает их снизу вверх
+   (scaleY 0 → 1) с разной задержкой: тёмная секция Sound поднимается по льду, как эквалайзер. */
+.eqrise { position: absolute; left: 0; right: 0; bottom: 0; height: 72vh; z-index: 4; display: flex; pointer-events: none; }
+.eqrise span { flex: 1 1 0; margin-right: -1px; background: #060D16; transform: scaleY(0); transform-origin: 50% 100%; }
+
 /* =========================================================
    SOUND (полосы стекла)
    ========================================================= */
@@ -272,6 +299,22 @@ html.lenis, html.lenis body { height: auto; }
 .strip.is-on .strip__info { opacity: 1; }
 
 /* =========================================================
+   Перебивка Sound → Lab: большая строка едет вбок и заливается цветом
+   ========================================================= */
+.handoff { position: relative; overflow: hidden; padding: 9vh 0 8vh; background: linear-gradient(180deg, #060D16, #020812); color: var(--ice); }
+.handoff__label { display: block; padding-left: var(--pad-x); margin-bottom: 14px; font-family: var(--font-mono); font-size: 12px; color: #8FA6BA; }
+/* Контур — это -webkit-text-stroke, заливка — фон-градиент, обрезанный по буквам.
+   --fill (0–100%) двигает границу заливки слева направо. */
+.handoff__line {
+  --fill: 100%;
+  margin: 0; width: max-content; padding: 0 var(--pad-x); white-space: nowrap;
+  font-family: var(--font-display); font-weight: 900; font-size: 13vw; line-height: 1; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(234,243,246,0.45);
+  background: linear-gradient(90deg, var(--ice) var(--fill), rgba(234,243,246,0) var(--fill));
+  -webkit-background-clip: text; background-clip: text;
+}
+
+/* =========================================================
    LAB (драм-машина): тёмный пульт
    ========================================================= */
 .lab { background: #020812; color: var(--ice); }
@@ -279,6 +322,8 @@ html.lenis, html.lenis body { height: auto; }
 .lab__blob--a { width: 34vw; height: 34vw; left: 20vw; top: -12vw; background: #1D4F86; animation: drift1 24s ease-in-out infinite; }
 .lab__blob--b { width: 30vw; height: 30vw; right: 4vw; bottom: -12vw; background: var(--glacier); animation: drift2 28s ease-in-out infinite; }
 .lab__frost { position: absolute; inset: 0; backdrop-filter: blur(70px); -webkit-backdrop-filter: blur(70px); background: rgba(2,8,18,0.5); }
+/* Верх секции уходит в чистый тёмный цвет, чтобы пятна света не обрывались линией на стыке с перебивкой. */
+.lab::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 32vh; z-index: 1; background: linear-gradient(180deg, #020812, rgba(2,8,18,0)); pointer-events: none; }
 .lab__inner { position: relative; z-index: 2; height: 100%; padding: 40px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
 .lab__lead { margin: 10px 0 0; font-size: 18px; color: #B9CADB; }
 .lab__controls { display: flex; gap: 10px; align-items: center; }

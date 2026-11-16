@@ -4,6 +4,7 @@ import Hero from '../components/Hero.jsx';
 import About from '../components/About.jsx';
 import Albums from '../components/Albums.jsx';
 import Sound from '../components/Sound.jsx';
+import Handoff from '../components/Handoff.jsx';
 import Lab from '../components/Lab.jsx';
 import Footer from '../components/Footer.jsx';
 import LiveEq from '../components/LiveEq.jsx';
@@ -48,6 +49,7 @@ export default function Home() {
       <About />
       <Albums />
       <Sound />
+      <Handoff />
       <Lab />
       <Footer />
 

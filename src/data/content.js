@@ -102,6 +102,9 @@ export const genres = [
   { name: 'EXPERIMENTAL', bpm: 'без правил', desc: 'Этника, оркестр, странные паттерны. Бит как кино или шоу.', a: '#04145C', b: '#7DF9D4' },
 ];
 
+// Перебивка между секциями Sound и Lab (большая строка, которая едет вбок).
+export const handoff = { label: 'ПОСЛУШАЛ МОЁ', line: 'ТЕПЕРЬ ТВОЯ ОЧЕРЕДЬ' };
+
 export const channels = [
   { label: 'TELEGRAM', num: 'CH.01', href: contacts.telegram },
   { label: 'INSTAGRAM', num: 'CH.02', href: contacts.instagram },

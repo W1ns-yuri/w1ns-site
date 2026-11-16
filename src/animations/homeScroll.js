@@ -35,8 +35,11 @@ export function initHome(root, onSection) {
       heroOut(q);
       aboutIn(q);
       albumsDeal(q);
+      soundRise(q);
       soundIn(q);
+      handoffLine(q);
       labIn(q);
+      labOut(q);
       footerIn(q);
       // marqueeSpeed возвращает функцию-уборку; matchMedia вызовет её сам при уходе со страницы.
       return marqueeSpeed(q);
@@ -69,19 +72,35 @@ export function initHome(root, onSection) {
 const once = (trigger, start = 'top 70%') => ({ trigger, start, toggleActions: 'play none none none' });
 const EASE = 'expo.out';
 
-// --- HERO: при скролле вниз буквы W1NS улетают вверх с разной скоростью
-// и чуть разъезжаются, интерфейс уходит, экран темнеет.
+// --- HERO → ABOUT: hero замирает на месте (pin), а About наезжает на него снизу, как следующий кадр.
+// Пока он наезжает: буквы W1NS разлетаются вверх, интерфейс уходит,
+// фон приближается (камера «наезжает» на имя) и темнеет.
 function heroOut(q) {
   const hero = q('.hero')[0];
   const tl = gsap.timeline({
-    scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true },
+    scrollTrigger: {
+      trigger: hero,
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true,
+      invalidateOnRefresh: true,
+      pin: true,
+      pinSpacing: false, // не добавлять пустое место: следующая секция едет поверх закреплённой
+      // Когда About накрыл hero целиком, прячем hero, чтобы браузер не тратил силы на невидимое.
+      onLeave: () => hero.classList.add('is-away'),
+      onEnterBack: () => hero.classList.remove('is-away'),
+    },
   });
   const spread = [-1.5, -0.5, 0.5, 1.5]; // W и S разъезжаются сильнее, 1 и N меньше
+  // Буквы стоят внизу экрана, а About наезжает как раз снизу. Чтобы он их не «съел»,
+  // буквы убегают вверх быстрее его края (больше высоты экрана), каждая со своей скоростью.
   q('.hero__letter-in').forEach((el, i) => {
-    tl.to(el, { yPercent: -35 - i * 12, xPercent: spread[i] * 12, rotate: spread[i] * 3, ease: 'none' }, 0);
+    tl.to(el, { y: () => -window.innerHeight * (1.08 + i * 0.14), xPercent: spread[i] * 12, rotate: spread[i] * 4, ease: 'none' }, 0);
   });
-  tl.to(q('.hero__top, .hero__mid'), { y: -120, opacity: 0, ease: 'none' }, 0);
-  tl.to(q('.hero__shade'), { opacity: 1, ease: 'none' }, 0);
+  tl.to(q('.hero__top, .hero__mid'), { y: -120, opacity: 0, ease: 'none', duration: 0.3 }, 0);
+  // GSAP умеет анимировать и CSS-переменные. --zoom читает .hero__bg-wrap (scale: var(--zoom)).
+  tl.fromTo(hero, { '--zoom': 1 }, { '--zoom': 1.35, ease: 'none' }, 0);
+  tl.to(q('.hero__shade'), { opacity: 1, ease: 'power1.in' }, 0);
   // autoAlpha = opacity + visibility. Opacity у подсказки занята мигающей CSS-анимацией,
   // а visibility: hidden прячет её поверх этого.
   tl.to(q('.scroll-hint'), { autoAlpha: 0, duration: 0.1, ease: 'none' }, 0);
@@ -102,12 +121,14 @@ function aboutIn(q) {
     .from(q('.about__foot'), { opacity: 0, y: 20, duration: 0.5 }, '>-0.4');
 }
 
-// --- ALBUMS: секция закрепляется, обложки лежат стопкой в центре
-// и по мере скролла «раздаются» по местам, как карты.
+// --- ABOUT → ALBUMS: секция въезжает тёмной (как About), на ней лежит стопка обложек.
+// Когда секция закрепилась, из-за стопки кругом «вырывается» ледяной свет,
+// и только потом обложки раздаются по местам, как карты.
 function albumsDeal(q) {
   const section = q('.albums')[0];
   const covers = q('.cover');
   const wrap = q('.covers')[0];
+  const ice = q('.albums__ice')[0];
   const split = SplitText.create(q('.albums .h2'), { type: 'chars', mask: 'chars' });
 
   // Насколько сдвинуть обложку, чтобы она оказалась в центре ряда.
@@ -117,17 +138,28 @@ function albumsDeal(q) {
     return w.left + w.width / 2 - (r.left + r.width / 2);
   };
 
+  // Круг света: центр — середина ряда обложек (там лежит стопка).
+  // open = false → радиус 0 (света нет), open = true → радиус до самого дальнего угла секции.
+  const iris = (open) => {
+    const s = section.getBoundingClientRect();
+    const w = wrap.getBoundingClientRect();
+    const cx = w.left + w.width / 2 - s.left;
+    const cy = w.top + w.height / 2 - s.top;
+    const r = open ? Math.hypot(Math.max(cx, s.width - cx), Math.max(cy, s.height - cy)) : 0;
+    return `circle(${Math.ceil(r)}px at ${Math.round(cx)}px ${Math.round(cy)}px)`;
+  };
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: section,
       start: 'top top',
-      end: '+=90%',
+      end: '+=150%',
       pin: true,
       scrub: 0.6,
       invalidateOnRefresh: true, // пересчитать позиции при ресайзе окна
     },
   });
-  tl.from(split.chars, { yPercent: 110, stagger: 0.04, duration: 0.5, ease: 'power3.out' }, 0)
+  tl.fromTo(ice, { clipPath: () => iris(false) }, { clipPath: () => iris(true), duration: 0.9, ease: 'power2.in' }, 0)
     .from(covers, {
       x: (i, el) => toCenter(el),
       y: 80,
@@ -136,8 +168,26 @@ function albumsDeal(q) {
       duration: 1,
       ease: 'power2.inOut',
       stagger: 0.06,
-    }, 0)
-    .from(q('.albums .hint'), { opacity: 0, duration: 0.3 }, 0.8);
+    }, 0.55)
+    .from(split.chars, { yPercent: 110, stagger: 0.04, duration: 0.5, ease: 'power3.out' }, 0.75)
+    .from(q('.albums .hint'), { opacity: 0, duration: 0.3 }, 1.4)
+    // Пустой отрезок в конце: обложки уже на местах, а секция ещё закреплена.
+    // Без него раздача заканчивалась бы ровно в момент, когда секция уезжает, и альбомы некогда было бы рассмотреть.
+    .to({}, { duration: 0.6 });
+}
+
+// --- ALBUMS → SOUND: пока Albums уезжает вверх, по льду снизу поднимаются тёмные столбики
+// разной высоты, как эквалайзер, и смыкаются в сплошную тьму секции Sound.
+function soundRise(q) {
+  const bars = q('.eqrise span');
+  // Задержки подобраны вручную, чтобы соседние столбики были разной высоты (не лесенкой).
+  const delays = [0.3, 0.05, 0.42, 0.18, 0.5, 0.1, 0.36, 0, 0.26, 0.46, 0.14, 0.4, 0.04, 0.3, 0.2, 0.5, 0.08, 0.38, 0.16, 0.28];
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: q('.sound')[0], start: 'top bottom', end: 'top 28%', scrub: 0.3 },
+  });
+  bars.forEach((bar, i) => {
+    tl.to(bar, { scaleY: 1, duration: 0.5, ease: 'power1.in' }, delays[i % delays.length]);
+  });
 }
 
 // --- SOUND: полосы стекла вырастают снизу, как столбики эквалайзера.
@@ -146,6 +196,7 @@ function soundIn(q) {
   const split = SplitText.create(q('.sound .h2'), { type: 'chars', mask: 'chars' });
   const tl = gsap.timeline({ scrollTrigger: once(section, 'top 60%') });
   tl.from(split.chars, { yPercent: 110, duration: 0.9, stagger: 0.04, ease: EASE })
+    .from(q('.sound .hint'), { opacity: 0, duration: 0.6 }, 0.3)
     .from(q('.strip'), {
       scaleY: 0,
       transformOrigin: '50% 100%',
@@ -174,6 +225,32 @@ function labIn(q) {
       // Задержка зависит от номера колонки (0–15), а не от порядка в DOM.
       delay: (i) => 0.25 + (i % 16) * 0.04 + Math.floor(i / 16) * 0.02,
     }, 0);
+}
+
+// --- SOUND → LAB: строка «теперь твоя очередь» едет справа налево вместе со скроллом
+// и заливается цветом. Передаём инструмент гостю.
+function handoffLine(q) {
+  const box = q('.handoff')[0];
+  const line = q('.handoff__line')[0];
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: box, start: 'top bottom', end: 'bottom top', scrub: 0.4, invalidateOnRefresh: true },
+  });
+  tl.fromTo(line,
+    { x: () => window.innerWidth * 0.35 },
+    // Конец пути: правый край строки останавливается на 70% ширины экрана.
+    { x: () => -(line.offsetWidth - window.innerWidth * 0.7), ease: 'none', duration: 1 }, 0)
+    .fromTo(line, { '--fill': '0%' }, { '--fill': '100%', ease: 'none', duration: 0.55 }, 0.2);
+}
+
+// --- LAB → FOOTER: Lab замирает, чуть уменьшается и гаснет, а чёрный футер наезжает на него, как финальные титры.
+function labOut(q) {
+  const section = q('.lab')[0];
+  gsap.to(q('.lab__inner'), {
+    scale: 0.92,
+    opacity: 0.25,
+    ease: 'none',
+    scrollTrigger: { trigger: section, start: 'top top', end: 'bottom top', scrub: true, pin: true, pinSpacing: false },
+  });
 }
 
 // --- FOOTER: контурный W1NS поднимается снизу по буквам, бегущая строка въезжает.
