@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { drumRows } from '../data/content.js';
-import { getAudio, hit } from '../audio/engine.js';
+import { getAudio, hit, stopFile } from '../audio/engine.js';
 
 const STEPS = 16;
 const BPM = 150;
@@ -11,7 +11,8 @@ function toGrid(rows) {
 }
 
 // Драм-машина: сетка 4×16, Play запускает цикл.
-export default function Lab() {
+// heroPlaying — играет ли бит из hero (приходит из Home).
+export default function Lab({ heroPlaying = false }) {
   const [grid, setGrid] = useState(() => toGrid(drumRows));
   const [step, setStep] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -34,8 +35,15 @@ export default function Lab() {
 
   function togglePlay() {
     if (!playing && !getAudio()) return;
+    // Два бита одновременно — каша. Включил свой паттерн → мой бит из hero замолкает.
+    if (!playing) stopFile();
     setPlaying(!playing);
   }
+
+  // И наоборот: включили бит из hero → драм-машина останавливается.
+  useEffect(() => {
+    if (heroPlaying) setPlaying(false);
+  }, [heroPlaying]);
 
   function toggleCell(r, c) {
     setGrid((g) => g.map((row, ri) => row.map((on, ci) => (ri === r && ci === c ? !on : on))));

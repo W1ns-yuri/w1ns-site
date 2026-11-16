@@ -33,7 +33,8 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(16vw,10vh) scale(1.25); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1.1); } 50% { transform: translate(-14vw,-8vh) scale(0.9); } }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes marquee { to { transform: translateX(-50%); } }
+/* Едет через свойство translate, а не transform: transform остаётся свободным для GSAP (наклон от скорости скролла). */
+@keyframes marquee { to { translate: -50% 0; } }
 @keyframes eq { 0%,100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
 @keyframes focus-pull { from { opacity: 0; filter: blur(40px) brightness(1.6); transform: scale(1.15); } to { opacity: 1; filter: none; } }
 @keyframes letter-rise { from { transform: translateY(105%) rotate(4deg); } to { transform: none; } }
@@ -177,6 +178,12 @@ html.lenis, html.lenis body { height: auto; }
   transform-origin: 50% 100%; scale: 1 calc(1 + var(--bass, 0) * var(--punch, 0.1));
   transform: translate3d(calc(var(--mx, 0) * var(--depth) * 1px), calc(var(--my, 0) * var(--depth) * 0.4px), 0); }
 /* Внутренний span — выезд снизу при загрузке. Низ секции обрезан (overflow: hidden), поэтому буква «поднимается из-за края экрана». */
+/* Пока прелоадер на экране, интро hero стоит на паузе на первом кадре.
+   Класс is-ready на <html> ставит Preloader.jsx, когда шрифты и фон загрузились. */
+html:not(.is-ready) .hero__bg-wrap,
+html:not(.is-ready) .hero__letter-in,
+html:not(.is-ready) .intro { animation-play-state: paused; }
+
 /* fill-mode backwards: после интро анимация «отпускает» transform, и им может управлять GSAP при скролле. */
 .hero__letter-in { display: inline-block; animation: letter-rise 1.3s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 
@@ -206,6 +213,15 @@ html.lenis, html.lenis body { height: auto; }
 
 .about__photo { display: block; height: 72vh; overflow: hidden; border-radius: 4px; }
 .about__photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+
+/* Пилюли «улетели» в Albums: в тексте остаётся пустое место под них. */
+.about.is-flying .inpill img { visibility: hidden; }
+
+/* «Летуны»: копии обложек поверх страницы. Размер, место и скругление им каждый кадр задаёт pillsFly. */
+.flyers { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+.flyer { position: absolute; left: 0; top: 0; visibility: hidden; overflow: hidden; background-color: var(--navy); background-size: cover; background-position: center; will-change: transform, width, height; }
+/* Та же тень снизу, что и у настоящей обложки: проявляется по мере полёта (--t от 0 до 1). */
+.flyer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1,4,11,0) 40%, rgba(1,4,11,0.85) 100%); opacity: var(--t, 0); }
 
 /* Дуотон: ч/б фото красится в палитру сайта двумя слоями.
    ::before (screen) поднимает чёрное до тёмно-синего, ::after (multiply) красит светлое в ледяной. */
@@ -273,6 +289,11 @@ html.lenis, html.lenis body { height: auto; }
 .sample { display: flex; align-items: center; height: 48px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(10,37,64,0.12); background: rgba(255,255,255,0.5); font-family: var(--font-mono); font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 150ms ease-out; }
 .sample.is-on { background: var(--mint); }
 .sample--more { background: transparent; color: var(--muted-light); }
+
+/* Пока обложки-«летуны» ещё в пути, настоящие обложки спрятаны (класс ставит pillsFly). */
+.albums.is-waiting .cover { visibility: hidden; }
+.cover__text, .cover__code { transition: opacity 500ms ease-out; }
+.albums.is-waiting .cover__text, .albums.is-waiting .cover__code { opacity: 0; }
 
 /* Столбики тьмы внизу Albums. Пока секция уезжает вверх, GSAP растягивает их снизу вверх
    (scaleY 0 → 1) с разной задержкой: тёмная секция Sound поднимается по льду, как эквалайзер. */
@@ -451,3 +472,21 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 .cursor.is-label .cursor__label { opacity: 1; transition-delay: 120ms; }
 /* Притянутый элемент возвращается на место плавно */
 [data-magnetic] { transition: translate 400ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* =========================================================
+   ПРЕЛОАДЕР: счётчик, потом экран раскрывается двумя половинами
+   ========================================================= */
+.preloader { position: fixed; inset: 0; z-index: 3000; color: var(--ice); }
+.preloader__half { position: absolute; left: 0; right: 0; height: 50.5%; background: var(--ink); transition: transform 800ms cubic-bezier(0.76, 0, 0.24, 1); }
+.preloader__half--top { top: 0; }
+.preloader__half--bottom { bottom: 0; }
+.preloader.is-opening { pointer-events: none; }
+.preloader.is-opening .preloader__half--top { transform: translateY(-101%); }
+.preloader.is-opening .preloader__half--bottom { transform: translateY(101%); }
+.preloader__ui { position: absolute; inset: 0; transition: opacity 250ms ease-out; }
+.preloader.is-opening .preloader__ui { opacity: 0; }
+.preloader__label { position: absolute; left: var(--pad-x); bottom: calc(50% + 18px); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: #8FA6BA; }
+/* Линия идёт ровно по шву, по которому экран потом разъедется. */
+.preloader__line { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(234,243,246,0.14); }
+.preloader__line i { display: block; height: 100%; background: var(--mint); transform: scaleX(0); transform-origin: 0 50%; }
+.preloader__num { position: absolute; right: var(--pad-x); top: calc(50% + 10px); font-family: var(--font-display); font-weight: 900; font-size: 15vw; line-height: 0.9; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }

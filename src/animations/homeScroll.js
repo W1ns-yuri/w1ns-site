@@ -35,6 +35,7 @@ export function initHome(root, onSection) {
       heroOut(q);
       aboutIn(q);
       albumsDeal(q);
+      pillsFly(q);
       soundRise(q);
       soundIn(q);
       handoffLine(q);
@@ -181,6 +182,66 @@ function albumsDeal(q) {
     // Пустой отрезок в конце: обложки уже на местах, а секция ещё закреплена.
     // Без него раздача заканчивалась бы ровно в момент, когда секция уезжает, и альбомы некогда было бы рассмотреть.
     .to({}, { duration: 0.6 });
+}
+
+// --- ABOUT → ALBUMS (полёт): маленькие обложки из текста About вылетают из строки,
+// растут и ложатся стопкой туда, где в Albums лежит настоящая стопка.
+// Трюк: летят не сами картинки из текста, а их копии («летуны») в слое поверх страницы.
+// Каждый кадр смотрим, где сейчас пилюля (старт) и где стопка (финиш), и ставим летуна между ними.
+function pillsFly(q) {
+  const about = q('.about')[0];
+  const albums = q('.albums')[0];
+  const pills = q('.inpill img');
+  const flyers = q('.flyer');
+  const wrap = q('.covers')[0];
+  const covers = q('.cover');
+  const tilt = [-8, 4, 10]; // те же углы, что у обложек в стопке (см. albumsDeal)
+  const ease = gsap.parseEase('power2.inOut');
+  const mix = (a, b, t) => a + (b - a) * t; // точка между a и b: t = 0 → a, t = 1 → b
+
+  const render = (p) => {
+    const flying = p > 0 && p < 1;
+    about.classList.toggle('is-flying', p > 0);   // пилюли в тексте прячем
+    albums.classList.toggle('is-waiting', p < 1); // настоящие обложки ждут, пока летуны долетят
+    flyers.forEach((el) => { el.style.visibility = flying ? 'visible' : 'hidden'; });
+    if (!flying) return;
+
+    const t = ease(p);
+    const w = wrap.getBoundingClientRect();
+    // Финиш: центр ряда обложек, сдвиг на 80px вниз и размер 82% — так лежит стопка до раздачи.
+    const size = covers[0].offsetWidth * 0.82;
+    const endX = w.left + w.width / 2;
+    const endY = w.top + w.height / 2 + 80;
+
+    flyers.forEach((el, i) => {
+      const r = pills[i].getBoundingClientRect();
+      const width = mix(r.width, size, t);
+      const height = mix(r.height, size, t);
+      const x = mix(r.left + r.width / 2, endX, t) - width / 2;
+      const y = mix(r.top + r.height / 2, endY, t) - height / 2;
+      el.style.width = `${width}px`;
+      el.style.height = `${height}px`;
+      el.style.borderRadius = `${mix(r.height / 2, 0, t)}px`; // из пилюли в квадрат
+      el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${tilt[i] * t}deg)`;
+      el.style.setProperty('--t', t.toFixed(3));
+    });
+  };
+
+  // Полёт идёт, пока Albums едет от нижнего края экрана до верхнего.
+  ScrollTrigger.create({
+    trigger: albums,
+    start: 'top bottom',
+    end: 'top top',
+    onUpdate: (self) => render(self.progress),
+    onRefresh: (self) => render(self.progress),
+  });
+
+  // Уборка при уходе со страницы: снимаем классы и прячем летунов.
+  return () => {
+    about.classList.remove('is-flying');
+    albums.classList.remove('is-waiting');
+    flyers.forEach((el) => { el.style.visibility = 'hidden'; });
+  };
 }
 
 // --- ALBUMS → SOUND: пока Albums уезжает вверх, по льду снизу поднимаются тёмные столбики

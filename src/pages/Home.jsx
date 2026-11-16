@@ -11,6 +11,7 @@ import LiveEq from '../components/LiveEq.jsx';
 import { initHome } from '../animations/homeScroll.js';
 import { usePulse } from '../hooks/usePulse.js';
 import { playFile, stopFile } from '../audio/engine.js';
+import { releases } from '../data/content.js';
 
 const HERO_TRACK = '/audio/escape/escape.mp3';
 
@@ -50,8 +51,16 @@ export default function Home() {
       <Albums />
       <Sound />
       <Handoff />
-      <Lab />
+      <Lab heroPlaying={sound} />
       <Footer />
+
+      {/* «Летуны»: копии обложек, которые при скролле вылетают из текста About и ложатся стопкой в Albums.
+          Они висят поверх страницы (position: fixed), а двигает их pillsFly в homeScroll.js. */}
+      <div className="flyers" aria-hidden="true">
+        {releases.map((r) => (
+          <span key={r.id} className="flyer" style={{ backgroundImage: `url(${r.cover})` }} />
+        ))}
+      </div>
 
       {/* Плашка звука: видна, пока играет бит, чтобы его можно было выключить с любого места страницы */}
       <button type="button" className={`soundpill ${sound ? 'is-on' : ''}`} onClick={toggleSound} tabIndex={sound ? 0 : -1} aria-label="Выключить бит" data-cursor="СТОП">
