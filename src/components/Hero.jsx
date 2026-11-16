@@ -53,6 +53,8 @@ export default function Hero() {
         <div className="hero__bg hero__bg--a" />
       </div>
       <div className="hero__vignette" aria-hidden="true" />
+      {/* Затемнение, которое GSAP проявляет, пока hero уезжает вверх */}
+      <div className="hero__shade" aria-hidden="true" />
 
       <div className="hero__content">
         <header className="hero__top intro intro--1">

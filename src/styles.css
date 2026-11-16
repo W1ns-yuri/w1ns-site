@@ -43,20 +43,17 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* ---------- Каркас: скролл со снапом ---------- */
-.scroller {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  position: relative;
-}
+/* ---------- Каркас ----------
+   Скроллится обычное окно, плавность даёт Lenis (src/animations/homeScroll.js).
+   Снап убран: он превращал сайт в слайды и ломал анимации от скролла. */
 .section {
   height: 100vh;
-  scroll-snap-align: start;
   position: relative;
   overflow: hidden;
 }
+/* Классы, которые Lenis вешает на <html>, нужны ему для корректной работы. */
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
 
 /* ---------- Общие элементы ---------- */
 .h2 { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 64px; line-height: 0.9; letter-spacing: -0.03em; }
@@ -93,6 +90,7 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 }
 .hero__bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .hero__bg--a { background-image: url(/bg/bg10.webp); filter: blur(24px) saturate(1.1); animation: bgfloat 34s ease-in-out infinite; }
+.hero__shade { position: absolute; inset: 0; z-index: 1; background: var(--ink); opacity: 0; pointer-events: none; }
 .hero__vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 0%, rgba(1,4,11,0) 40%, rgba(1,4,11,0.75) 100%); }
 .hero__content { position: relative; z-index: 2; height: 100%; padding-top: 28px; display: flex; flex-direction: column; justify-content: space-between; }
 
@@ -124,10 +122,11 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 /* Внешний span — параллакс: сдвиг = позиция мыши × глубина буквы. */
 .hero__letter { display: inline-block; transform: translate3d(calc(var(--mx, 0) * var(--depth) * 1px), calc(var(--my, 0) * var(--depth) * 0.4px), 0); }
 /* Внутренний span — выезд снизу при загрузке. Низ секции обрезан (overflow: hidden), поэтому буква «поднимается из-за края экрана». */
-.hero__letter-in { display: inline-block; animation: letter-rise 1.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+/* fill-mode backwards: после интро анимация «отпускает» transform, и им может управлять GSAP при скролле. */
+.hero__letter-in { display: inline-block; animation: letter-rise 1.3s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 
 /* Интро интерфейса: появляется после букв. Без filter: он сломал бы стекло (backdrop-filter) внутри. */
-.intro { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.intro { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 .intro--1 { animation-delay: 0.95s; }
 .intro--2 { animation-delay: 1.1s; }
 .scroll-hint.intro--3 { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.4s both, blink 2.4s ease-in-out 2.3s infinite; }
@@ -178,8 +177,10 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .albums__glow--b { width: 36vw; height: 36vw; left: -10vw; bottom: -14vw; background: var(--glacier); filter: blur(110px); opacity: 0.45; }
 .albums__inner { position: relative; z-index: 2; height: 100%; padding: 40px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; gap: 28px; }
 
-.covers { display: flex; gap: 20px; flex-wrap: wrap; --size: 300px; }
+.covers { display: flex; gap: 20px; flex-wrap: wrap; --size: min(calc((100vw - var(--pad-x) - var(--pad-right) - 40px) / 3), 54vh); }
 .covers--small { --size: 180px; }
+/* Пока треклист закрыт, ряд обложек стоит по центру по вертикали, а не прилипает к заголовку. */
+.covers:not(.covers--small) { margin-block: auto; }
 .cover {
   position: relative; overflow: hidden; width: var(--size); height: var(--size); padding: 0; cursor: pointer;
   border: 1px solid rgba(10,37,64,0.2); background-color: var(--navy); background-size: cover; background-position: center;
@@ -293,7 +294,7 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .back-top { position: absolute; left: 0; top: 0; font-size: 12px; text-decoration: none; border: 1px solid #FFFFFF; padding: 8px 12px; }
 .back-top:hover { background: #FFFFFF; color: #000000; }
 .copyright { position: absolute; right: 0; top: 0; font-size: 11px; color: #B8B8B8; }
-.footer__giant { display: block; font-family: var(--font-display); font-weight: 900; font-size: 26vw; line-height: 0.74; letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1.5px #FFFFFF; margin-bottom: -1vw; }
+.footer__giant { display: block; white-space: nowrap; font-family: var(--font-display); font-weight: 900; font-size: 26vw; line-height: 0.74; letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1.5px #FFFFFF; margin-bottom: -1vw; }
 
 .tracklist__link { color: var(--navy); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--navy); }
 .tracklist__link:hover { color: #1D4F86; }

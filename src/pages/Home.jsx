@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import SideNav from '../components/SideNav.jsx';
 import Hero from '../components/Hero.jsx';
 import About from '../components/About.jsx';
@@ -6,21 +6,21 @@ import Albums from '../components/Albums.jsx';
 import Sound from '../components/Sound.jsx';
 import Lab from '../components/Lab.jsx';
 import Footer from '../components/Footer.jsx';
+import { initHome } from '../animations/homeScroll.js';
 
-// Home — главная страница. Он держит один «скроллер» на весь экран,
-// внутри которого 6 секций по 100% высоты. CSS scroll-snap сам доводит скролл.
+// Home — главная страница: 6 секций по 100% высоты экрана.
+// Плавный скролл и все анимации от скролла живут в src/animations/homeScroll.js.
 export default function Home() {
   const [active, setActive] = useState(0);
+  const rootRef = useRef(null);
 
-  // При скролле считаем, какая секция сейчас на экране — для боковой навигации.
-  function handleScroll(e) {
-    const el = e.currentTarget;
-    const index = Math.round(el.scrollTop / Math.max(1, el.clientHeight));
-    if (index !== active) setActive(index);
-  }
+  // useLayoutEffect, а не useEffect: запускается до того, как браузер нарисует кадр,
+  // поэтому GSAP успевает спрятать элементы и они не «мигают» перед анимацией.
+  // Возвращаемая функция — уборка: при уходе со страницы всё откатывается.
+  useLayoutEffect(() => initHome(rootRef.current, setActive), []);
 
   return (
-    <div className="scroller" onScroll={handleScroll}>
+    <div className="home" ref={rootRef}>
       <SideNav active={active} />
       <Hero />
       <About />
