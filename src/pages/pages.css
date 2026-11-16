@@ -1,0 +1,42 @@
+/* =========================================================
+   Общее для внутренних страниц (/beats, /about, /moon, /scorpion)
+   ========================================================= */
+.page { background: var(--ink); color: var(--ice); min-height: 100vh; overflow-x: clip; }
+.page ::selection { background: var(--mint); color: var(--ink); }
+
+/* Шапка: логотип слева и стеклянное меню справа, всегда сверху */
+.sitenav-logo, .sitenav-menu { position: fixed; top: 28px; z-index: 50; font-family: var(--font-mono); font-size: 12px; color: #FFFFFF; }
+/* Логотип уходит, когда страница прокручена (класс is-hidden ставит SiteNav.jsx) */
+.sitenav-logo { left: var(--pad-x); top: 34px; transition: opacity 300ms ease-out, transform 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.sitenav-logo.is-hidden { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+/* Меню плотнее, чем в hero главной: под ним проезжает контент, и текст должен читаться всегда */
+.sitenav-menu { right: var(--pad-x); background: rgba(1,4,11,0.7); }
+
+/* Мелкая моно-подпись: только для данных (BPM, длительность, номера) */
+.data { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--muted-dark); font-variant-numeric: tabular-nums; }
+
+/* Кнопки внутренних страниц */
+.btn {
+  height: 52px; padding: 0 26px; display: inline-flex; align-items: center; gap: 12px;
+  border-radius: 999px; border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+  transition: background 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out, transform 200ms ease-out;
+}
+.btn--light { background: #FFFFFF; color: var(--ink); }
+.btn--light:hover { background: var(--mint); }
+.btn--ghost { background: transparent; color: var(--ice); border-color: rgba(234,243,246,0.3); }
+.btn--ghost:hover { border-color: var(--ice); background: rgba(234,243,246,0.08); }
+.btn:active { transform: scale(0.97); }
+
+/* Низ страницы: «дальше» */
+.next { padding: 120px var(--pad-x) 32px; border-top: 1px solid rgba(234,243,246,0.12); }
+.next__link { display: block; text-decoration: none; }
+.next__hint { display: block; margin-bottom: 18px; font-family: var(--font-mono); font-size: 12px; color: var(--muted-dark); }
+.next__title { display: flex; align-items: center; gap: 3vw; overflow: hidden; font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 13vw, 240px); line-height: 0.9; letter-spacing: -0.04em; }
+.next__title-in { display: block; transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1); }
+.next__arrow { width: 0.7em; height: 0.7em; flex-shrink: 0; color: var(--mint); transform: translate(-0.4em, 0.4em); opacity: 0; transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease-out; }
+.next__link:hover .next__title-in { transform: translateX(0.12em); }
+.next__link:hover .next__arrow { transform: none; opacity: 1; }
+.next__meta { margin-top: 96px; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--muted-dark); }
+.next__meta a { text-decoration: none; }
+.next__meta a:hover { color: var(--ice); }

@@ -33,30 +33,29 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(16vw,10vh) scale(1.25); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1.1); } 50% { transform: translate(-14vw,-8vh) scale(0.9); } }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes marquee { to { transform: translateX(-50%); } }
+/* Едет через свойство translate, а не transform: transform остаётся свободным для GSAP (наклон от скорости скролла). */
+@keyframes marquee { to { translate: -50% 0; } }
 @keyframes eq { 0%,100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
 @keyframes focus-pull { from { opacity: 0; filter: blur(40px) brightness(1.6); transform: scale(1.15); } to { opacity: 1; filter: none; } }
 @keyframes letter-rise { from { transform: translateY(105%) rotate(4deg); } to { transform: none; } }
 @keyframes intro-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes ring { 0% { transform: scale(0.9); opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; } }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* ---------- Каркас: скролл со снапом ---------- */
-.scroller {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  position: relative;
-}
+/* ---------- Каркас ----------
+   Скроллится обычное окно, плавность даёт Lenis (src/animations/homeScroll.js).
+   Снап убран: он превращал сайт в слайды и ломал анимации от скролла. */
 .section {
   height: 100vh;
-  scroll-snap-align: start;
   position: relative;
   overflow: hidden;
 }
+/* Классы, которые Lenis вешает на <html>, нужны ему для корректной работы. */
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
 
 /* ---------- Общие элементы ---------- */
 .h2 { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 64px; line-height: 0.9; letter-spacing: -0.03em; }
@@ -64,11 +63,11 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .hint { margin: 0; font-family: var(--font-mono); font-size: 12px; color: var(--muted-light); }
 .hint--light { color: #8FA6BA; }
 .mono-label { font-family: var(--font-mono); font-size: 11px; opacity: 0.8; }
-.pill { align-self: center; padding: 6px 12px; border-radius: 999px; background: #111A28; font-size: 12px; position: relative; }
-.pill--top { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); white-space: nowrap; background: rgba(1,4,11,0.5); border: 1px solid rgba(234,242,250,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 13px; padding: 7px 14px; }
 
 .eq { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
 .eq span { display: block; width: 3px; height: 100%; background: currentColor; transform-origin: bottom; animation: eq 0.8s ease-in-out infinite; }
+/* Живой эквалайзер: CSS-анимация выключена, высоту задаёт JS по настоящему звуку */
+.eq--live span { animation: none; transition: transform 60ms linear; }
 
 /* ---------- Боковая навигация ---------- */
 .sidenav {
@@ -85,14 +84,19 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
    HERO
    ========================================================= */
 .hero { background: var(--ink); color: #FFFFFF; }
+/* Hero полностью накрыт следующей секцией: прячем, чтобы браузер его не рисовал. */
+.hero.is-away { visibility: hidden; }
 /* Обёртка фона: двигается против мышки (параллакс) и при загрузке «наводит фокус». */
 .hero__bg-wrap {
   position: absolute; inset: -4%;
   transform: translate3d(calc(var(--mx, 0) * -18px), calc(var(--my, 0) * -12px), 0);
+  /* --zoom растёт при скролле (GSAP): камера «наезжает» на фон, пока About накрывает hero. */
+  scale: var(--zoom, 1);
   animation: focus-pull 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .hero__bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .hero__bg--a { background-image: url(/bg/bg10.webp); filter: blur(24px) saturate(1.1); animation: bgfloat 34s ease-in-out infinite; }
+.hero__shade { position: absolute; inset: 0; z-index: 1; background: var(--ink); opacity: 0; pointer-events: none; }
 .hero__vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 0%, rgba(1,4,11,0) 40%, rgba(1,4,11,0.75) 100%); }
 .hero__content { position: relative; z-index: 2; height: 100%; padding-top: 28px; display: flex; flex-direction: column; justify-content: space-between; }
 
@@ -108,7 +112,54 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .btn-collab { height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; text-decoration: none; color: var(--ink); background: #FFFFFF; font-weight: 700; }
 .btn-collab .dot { width: 8px; height: 8px; border-radius: 50%; background: #1FBF8F; animation: blink 1.6s ease-in-out infinite; }
 
-.hero__widget-wrap { padding: 0 var(--pad-right) 0 var(--pad-x); display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+/* Середина hero: слева кнопка звука, справа виджет релиза */
+.hero__mid { padding: 0 var(--pad-right) 0 var(--pad-x); display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+.hero__widget-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+
+/* Кнопка «Включи бит» */
+.soundbtn { display: flex; align-items: center; gap: 24px; padding: 0; background: none; border: none; color: #FFFFFF; cursor: pointer; text-align: left; }
+.soundbtn__disc {
+  position: relative; width: 112px; height: 112px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #FFFFFF; color: var(--ink);
+  /* Диск чуть раздувается на бас */
+  scale: calc(1 + var(--bass, 0) * 0.14);
+  transition: background 250ms ease-out;
+}
+.soundbtn__disc svg { width: 34px; height: 34px; }
+/* Кольцо вокруг диска: в тишине медленно «дышит», под бит расходится */
+.soundbtn__disc::before {
+  content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.45);
+  animation: ring 2.6s ease-out infinite;
+}
+.soundbtn.is-on .soundbtn__disc { background: var(--mint); }
+.soundbtn.is-on .soundbtn__disc::before { animation: none; border-color: var(--mint); opacity: calc(0.25 + var(--bass, 0)); scale: calc(1 + var(--bass, 0) * 0.28); }
+.soundbtn:hover .soundbtn__disc { background: var(--mint); }
+.soundbtn__text { display: flex; flex-direction: column; gap: 6px; }
+.soundbtn__title { font-family: var(--font-display); font-weight: 500; font-size: 30px; letter-spacing: -0.02em; line-height: 1.1; }
+.soundbtn__sub { font-size: 15px; color: #B9CADB; }
+
+/* Вспышка света под бит */
+.hero__flash {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 60% at 50% 100%, rgba(91,155,213,0.95) 0%, rgba(29,79,134,0.5) 40%, rgba(1,4,11,0) 75%);
+  opacity: calc(var(--bass, 0) * 0.85);
+}
+
+/* Плашка звука в углу: выезжает, когда бит играет */
+.soundpill {
+  position: fixed; left: 28px; bottom: 28px; z-index: 30; height: 44px; padding: 0 16px 0 14px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF;
+  background: rgba(1,4,11,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+  transform: translateY(90px); visibility: hidden;
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 600ms, border-color 200ms ease-out;
+}
+.soundpill.is-on { transform: none; visibility: visible; transition-delay: 0s; }
+.soundpill:hover { border-color: var(--mint); }
+.soundpill .eq { height: 16px; color: var(--mint); }
+.soundpill svg { width: 14px; height: 14px; }
 .drop-card { width: 400px; padding: 14px; border-radius: 20px; background: rgba(1,4,11,0.28); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3); display: flex; align-items: center; gap: 16px; }
 .drop-card__cover { width: 88px; height: 88px; flex-shrink: 0; border-radius: 12px; object-fit: cover; }
 .drop-card__info { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -122,70 +173,100 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .scroll-hint { position: absolute; right: var(--pad-right); top: -28px; font-family: var(--font-mono); font-size: 12px; animation: blink 2.4s ease-in-out infinite; }
 .hero__title { margin: 0 0 -3.2vw -0.06em; font-family: var(--font-display); font-weight: 900; font-size: 27.8vw; line-height: 0.82; letter-spacing: -0.06em; white-space: nowrap; }
 /* Внешний span — параллакс: сдвиг = позиция мыши × глубина буквы. */
-.hero__letter { display: inline-block; transform: translate3d(calc(var(--mx, 0) * var(--depth) * 1px), calc(var(--my, 0) * var(--depth) * 0.4px), 0); }
+.hero__letter { display: inline-block;
+  /* Под бит буква вытягивается вверх от нижнего края. scale — отдельное свойство, оно не мешает transform ниже. */
+  transform-origin: 50% 100%; scale: 1 calc(1 + var(--bass, 0) * var(--punch, 0.1));
+  transform: translate3d(calc(var(--mx, 0) * var(--depth) * 1px), calc(var(--my, 0) * var(--depth) * 0.4px), 0); }
 /* Внутренний span — выезд снизу при загрузке. Низ секции обрезан (overflow: hidden), поэтому буква «поднимается из-за края экрана». */
-.hero__letter-in { display: inline-block; animation: letter-rise 1.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+/* Пока прелоадер на экране, интро hero стоит на паузе на первом кадре.
+   Класс is-ready на <html> ставит Preloader.jsx, когда шрифты и фон загрузились. */
+html:not(.is-ready) .hero__bg-wrap,
+html:not(.is-ready) .hero__letter-in,
+html:not(.is-ready) .intro { animation-play-state: paused; }
+
+/* fill-mode backwards: после интро анимация «отпускает» transform, и им может управлять GSAP при скролле. */
+.hero__letter-in { display: inline-block; animation: letter-rise 1.3s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 
 /* Интро интерфейса: появляется после букв. Без filter: он сломал бы стекло (backdrop-filter) внутри. */
-.intro { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.intro { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 .intro--1 { animation-delay: 0.95s; }
 .intro--2 { animation-delay: 1.1s; }
 .scroll-hint.intro--3 { animation: intro-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.4s both, blink 2.4s ease-in-out 2.3s infinite; }
 
 /* =========================================================
-   ABOUT (bento)
+   ABOUT (главная): крупный абзац + портрет
    ========================================================= */
 .about { background: var(--night); color: #EAF2FA; }
-.about__inner { height: 100%; padding: 44px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; gap: 28px; }
-.about__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
-.about__title { margin: 0 0 10px; font-family: var(--font-display); font-weight: 300; font-size: 48px; line-height: 1.05; letter-spacing: -0.02em; }
-.about__lead { margin: 0; max-width: 620px; font-size: 15px; line-height: 1.55; color: var(--muted-dark); }
-.btn-dark { height: 46px; padding: 0 20px; display: inline-flex; align-items: center; border-radius: 10px; background: #1A2333; text-decoration: none; font-size: 14px; font-weight: 500; }
+.about__inner { height: 100%; padding: 0 var(--pad-right) 0 var(--pad-x); display: grid; grid-template-columns: minmax(0, 1fr) 26vw; column-gap: 5vw; align-items: center; }
+.about__text { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(30px, 3.5vw, 64px); line-height: 1.22; letter-spacing: -0.03em; }
+.about__foot { margin-top: 48px; display: flex; gap: 10px; }
+.about__btn { height: 52px; padding: 0 24px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(234,242,250,0.3); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; transition: background 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out, translate 400ms cubic-bezier(0.16, 1, 0.3, 1); }
+.about__btn:hover { border-color: #FFFFFF; background: rgba(255,255,255,0.08); }
+.about__btn--solid { background: #FFFFFF; color: var(--ink); border-color: #FFFFFF; }
+.about__btn--solid:hover { background: var(--mint); border-color: var(--mint); }
 
-.bento { flex-grow: 1; min-height: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.card { position: relative; overflow: hidden; border-radius: 20px; background: #070C16; border: 1px solid #141C2A; }
+/* Обложка-пилюля внутри текста */
+.inpill { display: inline-flex; align-items: center; gap: 0.3em; text-decoration: none; white-space: nowrap; vertical-align: baseline; }
+.inpill img { width: 1.5em; height: 0.82em; border-radius: 999px; object-fit: cover; transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.inpill:hover img { width: 2.4em; }
+.inpill:hover { color: var(--mint); }
 
-.card--photo { grid-column: span 5; grid-row: span 2; background: #0B2A4A; border: none; }
-.card--photo__glow { position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 30%, #3E8FD0 0%, #12406E 45%, #071A2E 100%); }
-.card--photo__circle { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); width: 46%; aspect-ratio: 1; border-radius: 50%; background: rgba(1,4,11,0.35); border: 1px dashed rgba(234,242,250,0.35); }
-.card--photo__placeholder { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 12px; }
-.timeline { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 22px; background: linear-gradient(180deg, rgba(3,6,13,0) 0%, rgba(3,6,13,0.85) 40%); }
-.timeline__row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid rgba(234,242,250,0.14); font-size: 14px; }
-.timeline__row .mono-label { color: var(--muted-dark); opacity: 1; font-size: 12px; }
+.about__photo { display: block; height: 72vh; overflow: hidden; border-radius: 4px; }
+.about__photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 
-.card--stack { grid-column: span 7; }
-.card--stack__keys { position: absolute; left: -10%; right: -10%; top: 18%; height: 44%; filter: blur(26px); opacity: 0.8; transform: perspective(600px) rotateX(48deg); background: repeating-linear-gradient(90deg, #1B5FD9 0px, #67C6FF 18px, #0A1A3A 34px, #2C7DF0 52px); }
-.stack { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 20px; }
-.stack span { height: 52px; min-width: 52px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+/* Пилюли «улетели» в Albums: в тексте остаётся пустое место под них. */
+.about.is-flying .inpill img { visibility: hidden; }
 
-.card--quote { grid-column: span 3; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
-.card--quote p { margin: 0; font-size: 16px; line-height: 1.5; }
-.card--quote__sign { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-.card--quote__sign b { font-family: var(--font-display); font-weight: 900; }
-.card--quote__sign span { color: var(--muted-dark); }
+/* «Летуны»: копии обложек поверх страницы. Размер, место и скругление им каждый кадр задаёт pillsFly. */
+.flyers { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+.flyer { position: absolute; left: 0; top: 0; visibility: hidden; overflow: hidden; background-color: var(--navy); background-size: cover; background-position: center; will-change: transform, width, height; }
+/* Та же тень снизу, что и у настоящей обложки: проявляется по мере полёта (--t от 0 до 1). */
+.flyer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1,4,11,0) 40%, rgba(1,4,11,0.85) 100%); opacity: var(--t, 0); }
 
-.card--contact { grid-column: span 4; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-.planet { position: absolute; width: 130%; aspect-ratio: 1; left: -15%; top: 46%; border-radius: 50%; background: radial-gradient(circle at 50% 30%, #6CC8FF 0%, #1C5CC7 22%, #0A2152 45%, #03060D 70%); box-shadow: 0 -18px 60px rgba(108,200,255,0.35); }
-.card--contact__links { position: relative; display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
-.card--contact__links span { padding: 8px 12px; border-radius: 999px; background: rgba(1,4,11,0.6); border: 1px solid rgba(234,242,250,0.15); }
+/* Дуотон: ч/б фото красится в палитру сайта двумя слоями.
+   ::before (screen) поднимает чёрное до тёмно-синего, ::after (multiply) красит светлое в ледяной. */
+.duotone { position: relative; isolation: isolate; }
+.duotone::before, .duotone::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.duotone::before { background: #04122C; mix-blend-mode: screen; }
+.duotone::after { background: #B4D6F2; mix-blend-mode: multiply; }
 
 /* =========================================================
    ALBUMS
    ========================================================= */
-.albums { background: var(--frost); }
+.albums { background: var(--night); }
+/* Ледяной слой с пятнами света. GSAP раскрывает его кругом (clip-path) из-за стопки обложек. */
+.albums__ice { position: absolute; inset: 0; background: var(--frost); overflow: hidden; }
 .albums__glow { position: absolute; border-radius: 50%; }
 .albums__glow--a { width: 30vw; height: 30vw; right: 6vw; top: -10vw; background: var(--mint); filter: blur(100px); opacity: 0.5; }
 .albums__glow--b { width: 36vw; height: 36vw; left: -10vw; bottom: -14vw; background: var(--glacier); filter: blur(110px); opacity: 0.45; }
 .albums__inner { position: relative; z-index: 2; height: 100%; padding: 40px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; gap: 28px; }
 
-.covers { display: flex; gap: 20px; flex-wrap: wrap; --size: 300px; }
+.covers { display: flex; gap: 20px; flex-wrap: wrap; --size: min(calc((100vw - var(--pad-x) - var(--pad-right) - 40px) / 3), 54vh); }
 .covers--small { --size: 180px; }
+/* Пока треклист закрыт, ряд обложек стоит по центру по вертикали, а не прилипает к заголовку. */
+.covers:not(.covers--small) { margin-block: auto; }
+/* Кнопка-обложка: только размер и «сцена» для 3D (perspective). Картинка и наклон — на .cover__face. */
 .cover {
-  position: relative; overflow: hidden; width: var(--size); height: var(--size); padding: 0; cursor: pointer;
-  border: 1px solid rgba(10,37,64,0.2); background-color: var(--navy); background-size: cover; background-position: center;
+  position: relative; width: var(--size); height: var(--size); padding: 0; cursor: pointer;
+  border: 0; background: none; perspective: 900px;
   transition: width 500ms cubic-bezier(.2,.8,.2,1), height 500ms cubic-bezier(.2,.8,.2,1), opacity 300ms;
 }
-.cover.is-open { border: 3px solid var(--navy); }
+.cover__face {
+  position: absolute; inset: 0; overflow: hidden; display: block;
+  border: 1px solid rgba(10,37,64,0.2); background-color: var(--navy); background-size: cover; background-position: center;
+  /* --tx / --ty: где мышка на обложке, от -1 до 1 (пишет Albums.jsx). */
+  transform: rotateX(calc(var(--ty, 0) * -10deg)) rotateY(calc(var(--tx, 0) * 10deg));
+  transition: transform 220ms ease-out, box-shadow 300ms ease-out;
+}
+.cover:hover .cover__face { box-shadow: 0 30px 60px -20px rgba(10,37,64,0.55); }
+.covers--small .cover__face { transform: none; }
+/* Блик: светлое пятно, которое ездит за мышкой. */
+.cover__glare {
+  position: absolute; inset: 0; opacity: 0; transition: opacity 300ms ease-out; mix-blend-mode: soft-light;
+  background: radial-gradient(circle at calc(50% + var(--tx, 0) * 50%) calc(50% + var(--ty, 0) * 50%), rgba(255,255,255,0.9), rgba(255,255,255,0) 60%);
+}
+.cover:hover .cover__glare { opacity: 1; }
+.cover.is-open .cover__face { border: 3px solid var(--navy); }
 .cover.is-dim { opacity: 0.55; }
 .cover__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1,4,11,0) 40%, rgba(1,4,11,0.85) 100%); }
 .cover__code { position: absolute; right: 12px; top: 14px; font-family: var(--font-mono); font-size: 10px; color: #FFFFFF; border: 1px solid #FFFFFF; padding: 3px 6px; }
@@ -209,6 +290,16 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .sample.is-on { background: var(--mint); }
 .sample--more { background: transparent; color: var(--muted-light); }
 
+/* Пока обложки-«летуны» ещё в пути, настоящие обложки спрятаны (класс ставит pillsFly). */
+.albums.is-waiting .cover { visibility: hidden; }
+.cover__text, .cover__code { transition: opacity 500ms ease-out; }
+.albums.is-waiting .cover__text, .albums.is-waiting .cover__code { opacity: 0; }
+
+/* Столбики тьмы внизу Albums. Пока секция уезжает вверх, GSAP растягивает их снизу вверх
+   (scaleY 0 → 1) с разной задержкой: тёмная секция Sound поднимается по льду, как эквалайзер. */
+.eqrise { position: absolute; left: 0; right: 0; bottom: 0; height: 72vh; z-index: 4; display: flex; pointer-events: none; }
+.eqrise span { flex: 1 1 0; margin-right: -1px; background: #060D16; transform: scaleY(0); transform-origin: 50% 100%; }
+
 /* =========================================================
    SOUND (полосы стекла)
    ========================================================= */
@@ -229,29 +320,57 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .strip.is-on .strip__info { opacity: 1; }
 
 /* =========================================================
-   LAB (драм-машина)
+   Перебивка Sound → Lab: большая строка едет вбок и заливается цветом
    ========================================================= */
-.lab { background: var(--ice); }
-.lab__blob { position: absolute; border-radius: 50%; }
-.lab__blob--a { width: 34vw; height: 34vw; left: 20vw; top: -12vw; background: #A8E6CF; animation: drift1 24s ease-in-out infinite; }
-.lab__blob--b { width: 30vw; height: 30vw; right: 4vw; bottom: -12vw; background: var(--glacier); animation: drift2 28s ease-in-out infinite; }
-.lab__frost { position: absolute; inset: 0; backdrop-filter: blur(56px); -webkit-backdrop-filter: blur(56px); background: rgba(234,243,246,0.35); }
-.lab__inner { position: relative; z-index: 2; height: 100%; padding: 40px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
-.lab__lead { margin: 10px 0 0; font-size: 18px; }
-.lab__controls { display: flex; gap: 10px; align-items: center; }
-.btn-outline, .btn-solid { height: 48px; padding: 0 20px; font-family: var(--font-mono); font-size: 13px; cursor: pointer; }
-.btn-outline { background: transparent; border: 1px solid var(--navy); color: var(--navy); }
-.btn-solid { background: var(--navy); border: none; color: var(--ice); font-weight: 700; padding: 0 24px; }
+.handoff { position: relative; overflow: hidden; padding: 9vh 0 8vh; background: linear-gradient(180deg, #060D16, #020812); color: var(--ice); }
+.handoff__label { display: block; padding-left: var(--pad-x); margin-bottom: 14px; font-family: var(--font-mono); font-size: 12px; color: #8FA6BA; }
+/* Контур — это -webkit-text-stroke, заливка — фон-градиент, обрезанный по буквам.
+   --fill (0–100%) двигает границу заливки слева направо. */
+.handoff__line {
+  --fill: 100%;
+  margin: 0; width: max-content; padding: 0 var(--pad-x); white-space: nowrap;
+  font-family: var(--font-display); font-weight: 900; font-size: 13vw; line-height: 1; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(234,243,246,0.45);
+  background: linear-gradient(90deg, var(--ice) var(--fill), rgba(234,243,246,0) var(--fill));
+  -webkit-background-clip: text; background-clip: text;
+}
 
-.seq { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.9); padding: 24px; display: flex; flex-direction: column; gap: 10px; overflow-x: auto; }
+/* =========================================================
+   LAB (драм-машина): тёмный пульт
+   ========================================================= */
+.lab { background: #020812; color: var(--ice); }
+.lab__blob { position: absolute; border-radius: 50%; opacity: 0.55; }
+.lab__blob--a { width: 34vw; height: 34vw; left: 20vw; top: -12vw; background: #1D4F86; animation: drift1 24s ease-in-out infinite; }
+.lab__blob--b { width: 30vw; height: 30vw; right: 4vw; bottom: -12vw; background: var(--glacier); animation: drift2 28s ease-in-out infinite; }
+.lab__frost { position: absolute; inset: 0; backdrop-filter: blur(70px); -webkit-backdrop-filter: blur(70px); background: rgba(2,8,18,0.5); }
+/* Верх секции уходит в чистый тёмный цвет, чтобы пятна света не обрывались линией на стыке с перебивкой. */
+.lab::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 32vh; z-index: 1; background: linear-gradient(180deg, #020812, rgba(2,8,18,0)); pointer-events: none; }
+.lab__inner { position: relative; z-index: 2; height: 100%; padding: 40px var(--pad-right) 40px var(--pad-x); display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.lab__lead { margin: 10px 0 0; font-size: 18px; color: #B9CADB; }
+.lab__controls { display: flex; gap: 10px; align-items: center; }
+.lab .hint { color: var(--muted-dark); font-variant-numeric: tabular-nums; }
+.btn-outline, .btn-solid { height: 48px; padding: 0 20px; font-family: var(--font-mono); font-size: 13px; cursor: pointer; border-radius: 999px; transition: background 200ms ease-out, color 200ms ease-out, border-color 200ms ease-out, translate 400ms cubic-bezier(0.16, 1, 0.3, 1); }
+.btn-outline { background: transparent; border: 1px solid rgba(234,243,246,0.3); color: var(--ice); }
+.btn-outline:hover { border-color: var(--ice); }
+.btn-solid { background: var(--ice); border: 1px solid var(--ice); color: var(--ink); font-weight: 700; padding: 0 28px; }
+.btn-solid:hover { background: var(--mint); border-color: var(--mint); }
+
+/* Панель секвенсора. Свечение вокруг неё растёт на каждый удар (--bass). */
+.seq {
+  background: rgba(255,255,255,0.035); border: 1px solid rgba(234,243,246,0.14); border-radius: 6px;
+  padding: 24px; display: flex; flex-direction: column; gap: 10px; overflow-x: auto;
+  box-shadow: 0 0 calc(var(--bass, 0) * 90px) rgba(91,155,213, calc(var(--bass, 0) * 0.55));
+}
 .seq__row { display: flex; align-items: center; gap: 10px; min-width: 900px; }
-.seq__name { width: 80px; flex-shrink: 0; font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+.seq__name { width: 80px; flex-shrink: 0; font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: #B9CADB; }
 .seq__cells { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 6px; flex-grow: 1; }
-.cell { height: 52px; min-width: 44px; padding: 0; cursor: pointer; border-radius: 4px; background: rgba(10,37,64,0.06); border: 2px solid transparent; transition: transform 80ms ease-out; }
-.cell.is-beat { background: rgba(10,37,64,0.12); }
-.cell.is-on { background: var(--mint); border-color: #3FCFA6; }
-.cell.is-now { border-color: var(--navy); }
-.cell.is-on.is-now { transform: scale(1.06); }
+.cell { height: 52px; min-width: 44px; padding: 0; cursor: pointer; border-radius: 4px; background: rgba(234,243,246,0.05); border: 1px solid transparent; transition: transform 80ms ease-out, background 120ms ease-out, box-shadow 120ms ease-out; }
+.cell:hover { background: rgba(234,243,246,0.14); }
+.cell.is-beat { background: rgba(234,243,246,0.1); }
+.cell.is-on { background: var(--mint); box-shadow: 0 0 18px rgba(125,249,212,0.35); }
+/* Бегущий столбец: шаг, который звучит прямо сейчас */
+.cell.is-now { border-color: rgba(234,243,246,0.7); }
+.cell.is-on.is-now { transform: scale(1.08); background: #FFFFFF; box-shadow: 0 0 28px rgba(255,255,255,0.7); }
 
 /* =========================================================
    FOOTER (HUD)
@@ -269,9 +388,13 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .hud-link:hover { background: var(--mint); color: #000000; }
 .hud-link__num { font-size: 11px; font-weight: 400; }
 .footer__booking { display: flex; gap: 10px; }
-.booking { flex-grow: 1; border: 1px solid #FFFFFF; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%); }
+.booking { flex-grow: 1; text-decoration: none; transition: background 200ms ease-out, color 200ms ease-out; border: 1px solid #FFFFFF; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%); }
+.booking:hover { background: #FFFFFF; color: #000000; }
+.booking:hover .booking__label { color: #333333; }
 .booking__label { font-size: 11px; color: #B8B8B8; }
-.barcode-box { width: 120px; border: 1px solid #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; }
+.barcode-box { width: 132px; text-decoration: none; transition: background 200ms ease-out, color 200ms ease-out; border: 1px solid #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; }
+.barcode-box:hover { background: #FFFFFF; color: #000000; }
+.barcode-box:hover .barcode { filter: invert(1); }
 .barcode { width: 80px; height: 34px; background: repeating-linear-gradient(90deg, #FFFFFF 0 2px, transparent 2px 3px, #FFFFFF 3px 6px, transparent 6px 8px, #FFFFFF 8px 9px, transparent 9px 12px); }
 
 .footer__right { grid-column: span 5; display: flex; justify-content: flex-end; align-items: flex-start; gap: 24px; }
@@ -293,12 +416,10 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 .back-top { position: absolute; left: 0; top: 0; font-size: 12px; text-decoration: none; border: 1px solid #FFFFFF; padding: 8px 12px; }
 .back-top:hover { background: #FFFFFF; color: #000000; }
 .copyright { position: absolute; right: 0; top: 0; font-size: 11px; color: #B8B8B8; }
-.footer__giant { display: block; font-family: var(--font-display); font-weight: 900; font-size: 26vw; line-height: 0.74; letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1.5px #FFFFFF; margin-bottom: -1vw; }
+.footer__giant { display: block; white-space: nowrap; font-family: var(--font-display); font-weight: 900; font-size: 26vw; line-height: 0.74; letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1.5px #FFFFFF; margin-bottom: -1vw; }
 
 .tracklist__link { color: var(--navy); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--navy); }
 .tracklist__link:hover { color: #1D4F86; }
-.styles-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.styles-list span { padding: 6px 10px; border-radius: 8px; background: #111A28; border: 1px solid #1E2A3C; font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
 
 /* =========================================================
    ПЕРЕХОД МЕЖДУ СТРАНИЦАМИ (киношные полосы)
@@ -319,3 +440,53 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
   opacity: 0; transition: opacity 200ms ease-out;
 }
 .curtain.is-closed .curtain__label { opacity: 1; transition-delay: 450ms; }
+
+/* =========================================================
+   ПУЛЬС ПОД БИТ
+   --bass / --mid / --high пишет хук usePulse на корень главной (.home).
+   Пока звука нет, они равны 0 и ничего не двигается.
+   ========================================================= */
+.home .strip__blob { scale: calc(1 + var(--bass, 0) * 0.35); }
+.home .lab__blob { scale: calc(1 + var(--bass, 0) * 0.3); }
+.home .albums__glow { scale: calc(1 + var(--bass, 0) * 0.25); }
+.home .footer__giant { -webkit-text-stroke-color: color-mix(in srgb, var(--mint) calc(var(--bass, 0) * 100%), #FFFFFF); }
+
+/* =========================================================
+   СВОЙ КУРСОР (src/components/Cursor.jsx)
+   ========================================================= */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+.cursor { position: fixed; left: 0; top: 0; z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 200ms ease-out; mix-blend-mode: difference; }
+.cursor.is-visible { opacity: 1; }
+.cursor__dot {
+  position: absolute; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #FFFFFF; border: 1px solid #FFFFFF;
+  transition: width 350ms cubic-bezier(0.16, 1, 0.3, 1), height 350ms cubic-bezier(0.16, 1, 0.3, 1), margin 350ms cubic-bezier(0.16, 1, 0.3, 1), background 200ms ease-out;
+}
+/* Над ссылкой: пустое кольцо */
+.cursor.is-hover .cursor__dot { width: 52px; height: 52px; margin: -26px 0 0 -26px; background: transparent; }
+/* С подписью: белый диск с текстом. Смешивание выключаем, чтобы текст читался. */
+.cursor.is-label { mix-blend-mode: normal; }
+.cursor.is-label .cursor__dot { width: 92px; height: 92px; margin: -46px 0 0 -46px; }
+.cursor__label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink); opacity: 0; transition: opacity 150ms ease-out; white-space: nowrap; }
+.cursor.is-label .cursor__label { opacity: 1; transition-delay: 120ms; }
+/* Притянутый элемент возвращается на место плавно */
+[data-magnetic] { transition: translate 400ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* =========================================================
+   ПРЕЛОАДЕР: счётчик, потом экран раскрывается двумя половинами
+   ========================================================= */
+.preloader { position: fixed; inset: 0; z-index: 3000; color: var(--ice); }
+.preloader__half { position: absolute; left: 0; right: 0; height: 50.5%; background: var(--ink); transition: transform 800ms cubic-bezier(0.76, 0, 0.24, 1); }
+.preloader__half--top { top: 0; }
+.preloader__half--bottom { bottom: 0; }
+.preloader.is-opening { pointer-events: none; }
+.preloader.is-opening .preloader__half--top { transform: translateY(-101%); }
+.preloader.is-opening .preloader__half--bottom { transform: translateY(101%); }
+.preloader__ui { position: absolute; inset: 0; transition: opacity 250ms ease-out; }
+.preloader.is-opening .preloader__ui { opacity: 0; }
+.preloader__label { position: absolute; left: var(--pad-x); bottom: calc(50% + 18px); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: #8FA6BA; }
+/* Линия идёт ровно по шву, по которому экран потом разъедется. */
+.preloader__line { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(234,243,246,0.14); }
+.preloader__line i { display: block; height: 100%; background: var(--mint); transform: scaleX(0); transform-origin: 0 50%; }
+.preloader__num { position: absolute; right: var(--pad-x); top: calc(50% + 10px); font-family: var(--font-display); font-weight: 900; font-size: 15vw; line-height: 0.9; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }

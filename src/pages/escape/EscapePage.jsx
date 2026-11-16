@@ -284,7 +284,7 @@ export default function EscapePage() {
             <ol className="esc-credits__tracks">
               {scenes.map((s) => <li key={s.id}><span>{s.num}</span>{s.title}</li>)}
             </ol>
-            <p className="esc-credits__note">Слушать альбом: [ссылки на площадки]</p>
+            <p className="esc-credits__note">Слушать альбом: <a href="https://soundcloud.com/old-line" target="_blank" rel="noopener noreferrer">SoundCloud</a></p>
             <TransitionLink to="/" label="W1NS" className="esc-ghost-btn">← ВЕРНУТЬСЯ НА W1NS</TransitionLink>
           </div>
         </section>

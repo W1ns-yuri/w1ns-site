@@ -36,6 +36,8 @@ export function TransitionProvider({ children }) {
 
   // Адрес поменялся → новая страница уже нарисована под шторкой → открываем.
   useEffect(() => {
+    // Новая страница всегда начинается сверху (иначе остаётся прокрутка прошлой).
+    window.scrollTo(0, 0);
     if (!busy.current) return;
     const t = setTimeout(() => {
       setClosed(false);

@@ -1,0 +1,51 @@
+/* =========================================================
+   /about — обо мне
+   ========================================================= */
+.me-hero { position: relative; min-height: 100vh; padding: 150px var(--pad-x) 56px; display: grid; grid-template-columns: 1fr 34vw; column-gap: 5vw; align-items: end; }
+.me-hero__name { margin: 0 0 28px; font-size: 18px; color: var(--muted-dark); }
+.me-hero__title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 9.6vw, 190px); line-height: 0.92; letter-spacing: -0.04em; }
+.me-hero__facts { list-style: none; margin: 56px 0 0; padding: 0; display: flex; gap: 10px; }
+.me-hero__facts li { padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(234,243,246,0.2); color: var(--ice); }
+.me-hero__photo { height: calc(100vh - 206px); min-height: 460px; overflow: hidden; border-radius: 4px; background: var(--navy); }
+.me-hero__photo img { display: block; width: 100%; height: 112%; margin-top: -6%; object-fit: cover; object-position: 50% 25%; }
+
+/* Манифест: крупный светлый текст, слова проявляются по скроллу */
+.manifest { padding: 22vh var(--pad-x) 26vh; }
+.manifest__text { margin: 0; font-family: var(--font-display); font-weight: 300; font-size: clamp(36px, 5vw, 92px); line-height: 1.12; letter-spacing: -0.03em; text-wrap: balance; max-width: 1300px; }
+
+/* История: горизонтальная лента внутри закреплённой секции */
+.story { position: relative; height: 100vh; overflow: hidden; background: #020812 url(/img/studio.webp) center bottom / cover; }
+.story::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, var(--ink) 0%, rgba(1,4,11,0.72) 45%, rgba(1,4,11,0.55) 100%); }
+.story__track { position: relative; height: 100%; width: max-content; display: flex; align-items: center; padding: 0 12vw 0 var(--pad-x); will-change: transform; }
+.story__intro { width: 46vw; flex-shrink: 0; }
+.story__heading { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(48px, 6.4vw, 110px); line-height: 0.95; letter-spacing: -0.03em; }
+.chapter { position: relative; width: 50vw; flex-shrink: 0; margin-right: 8vw; padding-top: 10vw; }
+/* Огромная контурная надпись за текстом главы */
+.chapter__label {
+  position: absolute; left: -0.04em; top: 0; white-space: nowrap;
+  font-family: var(--font-display); font-weight: 900; font-size: 9.5vw; line-height: 1; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(234,243,246,0.4);
+}
+.chapter__title { position: relative; margin: 0 0 20px; font-family: var(--font-display); font-weight: 500; font-size: clamp(26px, 2.5vw, 40px); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.chapter__text { position: relative; margin: 0; max-width: 46ch; font-size: 19px; line-height: 1.6; color: #C3D3E2; text-wrap: pretty; }
+.story__progress { position: absolute; left: var(--pad-x); right: var(--pad-x); bottom: 40px; height: 1px; background: rgba(234,243,246,0.18); }
+.story__progress span { display: block; height: 100%; background: var(--mint); transform-origin: left; transform: scaleX(0); }
+
+/* Сотрудничество: светлая секция, три большие строки-ссылки */
+.collab { padding: 140px var(--pad-x) 150px; background: var(--ice); color: var(--navy); }
+.collab__title { margin: 0 0 80px; font-family: var(--font-display); font-weight: 900; font-size: clamp(48px, 6.4vw, 110px); line-height: 0.95; letter-spacing: -0.03em; }
+.collab__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(10,37,64,0.25); }
+.collab__row {
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 56px; align-items: center; column-gap: 40px;
+  padding: 34px 0; border-bottom: 1px solid rgba(10,37,64,0.25); text-decoration: none; position: relative;
+  transition: color 300ms ease-out, padding 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* При наведении строка заливается тёмным снизу вверх */
+.collab__row::before { content: ''; position: absolute; inset: 0 calc(var(--pad-x) * -1); background: var(--navy); transform: scaleY(0); transform-origin: bottom; transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.collab__row > * { position: relative; }
+.collab__row:hover { color: var(--ice); padding-left: 24px; }
+.collab__row:hover::before { transform: scaleY(1); }
+.collab__name { font-family: var(--font-display); font-weight: 900; font-size: clamp(36px, 5vw, 84px); line-height: 1; letter-spacing: -0.03em; }
+.collab__text { font-size: 18px; line-height: 1.5; max-width: 44ch; }
+.collab__arrow { width: 44px; height: 44px; transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+.collab__row:hover .collab__arrow { transform: translate(6px, -6px); color: var(--mint); }
