@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { TransitionLink } from '../../components/PageTransition.jsx';
 import { scenes, morseWord } from './scenes.js';
 import { morseCode } from '../../audio/engine.js';
 import './escape.css';
@@ -92,7 +92,7 @@ export default function EscapePage() {
 
       {/* Киношные полосы сверху и снизу */}
       <header className="esc-bar esc-bar--top">
-        <Link to="/" className="esc-back">← W1NS</Link>
+        <TransitionLink to="/" label="W1NS" className="esc-back">← W1NS</TransitionLink>
         <span className="esc-bar__mid">ESCAPE</span>
         <span className="esc-rec"><span className="esc-rec__dot" aria-hidden="true" />{label}</span>
       </header>
@@ -285,7 +285,7 @@ export default function EscapePage() {
               {scenes.map((s) => <li key={s.id}><span>{s.num}</span>{s.title}</li>)}
             </ol>
             <p className="esc-credits__note">Слушать альбом: [ссылки на площадки]</p>
-            <Link to="/" className="esc-ghost-btn">← ВЕРНУТЬСЯ НА W1NS</Link>
+            <TransitionLink to="/" label="W1NS" className="esc-ghost-btn">← ВЕРНУТЬСЯ НА W1NS</TransitionLink>
           </div>
         </section>
       </div>
