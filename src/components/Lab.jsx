@@ -62,7 +62,7 @@ export default function Lab() {
           <div className="lab__controls">
             <span className="hint">{BPM} BPM · {stepLabel}</span>
             <button type="button" className="btn-outline" onClick={clearAll}>CLEAR</button>
-            <button type="button" className="btn-solid" onClick={togglePlay}>{playing ? 'STOP' : 'PLAY'}</button>
+            <button type="button" className="btn-solid" onClick={togglePlay} data-magnetic>{playing ? 'STOP' : 'PLAY'}</button>
           </div>
         </div>
 

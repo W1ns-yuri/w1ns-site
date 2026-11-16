@@ -50,6 +50,7 @@ export default function Albums() {
               onClick={() => toggle(r.id)}
               aria-pressed={openId === r.id}
               aria-label={`Открыть ${r.title}`}
+              data-cursor={openId === r.id ? 'ЗАКРЫТЬ' : 'ТРЕКИ'}
             >
               <span className="cover__shade" aria-hidden="true" />
               <span className="cover__code">{r.code}</span>
@@ -88,6 +89,7 @@ export default function Albums() {
                   <div
                     key={i}
                     className={`track ${hovered === i ? 'is-on' : ''}`}
+                    data-cursor="ПРЕВЬЮ"
                     onMouseEnter={() => enter(i)}
                     onMouseLeave={leave}
                   >

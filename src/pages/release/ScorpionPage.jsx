@@ -93,7 +93,7 @@ export default function ScorpionPage() {
 
         <div className="field__foot">
           <p className="data">ПРЕВЬЮ ЗВУКОВ ДОБАВЛЮ ПОЗЖЕ · ПАК ВЫДАЮ ЛИЧНО</p>
-          <a className="btn btn--light" href={orderLink()}>ХОЧУ ЭТОТ ПАК</a>
+          <a className="btn btn--light" href={orderLink('Привет! Хочу сэмпл-пак SCORPION')} target="_blank" rel="noopener noreferrer">ХОЧУ ЭТОТ ПАК</a>
         </div>
       </section>
 

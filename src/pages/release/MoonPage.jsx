@@ -3,7 +3,7 @@ import SiteNav from '../../components/SiteNav.jsx';
 import NextPage from '../../components/NextPage.jsx';
 import { TransitionLink } from '../../components/PageTransition.jsx';
 import { usePageMotion } from '../../hooks/usePageMotion.js';
-import { moonTracks } from '../../data/content.js';
+import { moonTracks, contacts } from '../../data/content.js';
 import '../pages.css';
 import './release.css';
 
@@ -54,7 +54,7 @@ export default function MoonPage() {
         <div className="moon-hero__moon" aria-hidden="true" />
         <h1 className="moon-hero__title moon-hero__title--solid">MOON</h1>
         <span className="moon-hero__title moon-hero__title--line" aria-hidden="true">MOON</span>
-        <p className="moon-hero__meta data">АЛЬБОМ · 6 ТРЕКОВ · OLD LINE CREW</p>
+        <p className="moon-hero__meta data">АЛЬБОМ · 6 ТРЕКОВ · <a href={contacts.crewYoutube} target="_blank" rel="noopener noreferrer">OLD LINE CREW</a></p>
       </section>
 
       <section className="phases" aria-label="Треклист">

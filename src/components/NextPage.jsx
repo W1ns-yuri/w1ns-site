@@ -5,7 +5,7 @@ import { TransitionLink } from './PageTransition.jsx';
 export default function NextPage({ to, title, hint }) {
   return (
     <footer className="next">
-      <TransitionLink to={to} label={title} className="next__link">
+      <TransitionLink to={to} label={title} className="next__link" data-cursor="ДАЛЬШЕ">
         <span className="next__hint">{hint}</span>
         <span className="next__title">
           <span className="next__title-in">{title}</span>

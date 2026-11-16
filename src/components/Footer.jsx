@@ -1,4 +1,4 @@
-import { channels } from '../data/content.js';
+import { channels, contacts } from '../data/content.js';
 
 const marquee = 'TRAP / SUPERTRAP / LOVE MUSIC / AMBIENT / DNB / EXPERIMENTAL / W1NS / '.repeat(2);
 
@@ -21,21 +21,21 @@ export default function Footer() {
           </div>
           <div className="hud-links">
             {channels.map((ch) => (
-              <a key={ch.label} href={ch.href} className="hud-link">
+              <a key={ch.label} href={ch.href} className="hud-link" target="_blank" rel="noopener noreferrer" data-cursor="ОТКРЫТЬ">
                 <span>{ch.label}</span>
                 <span className="hud-link__num">{ch.num} →</span>
               </a>
             ))}
           </div>
           <div className="footer__booking">
-            <div className="booking">
+            <a className="booking" href={contacts.telegram} target="_blank" rel="noopener noreferrer" data-cursor="НАПИСАТЬ">
               <span className="booking__label">BOOKING / КОЛЛАБЫ</span>
-              <span>[твой email или telegram]</span>
-            </div>
-            <div className="barcode-box">
+              <span>Telegram {contacts.telegramName}</span>
+            </a>
+<a className="barcode-box" href={contacts.crewYoutube} target="_blank" rel="noopener noreferrer" data-cursor="КОМАНДА">
               <span className="barcode" aria-hidden="true" />
-              W1-EOF
-            </div>
+              OLD LINE CREW
+            </a>
           </div>
         </div>
 

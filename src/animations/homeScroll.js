@@ -38,6 +38,8 @@ export function initHome(root, onSection) {
       soundIn(q);
       labIn(q);
       footerIn(q);
+      // marqueeSpeed возвращает функцию-уборку; matchMedia вызовет её сам при уходе со страницы.
+      return marqueeSpeed(q);
     });
 
   }, root);
@@ -78,21 +80,26 @@ function heroOut(q) {
   q('.hero__letter-in').forEach((el, i) => {
     tl.to(el, { yPercent: -35 - i * 12, xPercent: spread[i] * 12, rotate: spread[i] * 3, ease: 'none' }, 0);
   });
-  tl.to(q('.hero__top, .hero__widget-wrap'), { y: -120, opacity: 0, ease: 'none' }, 0);
+  tl.to(q('.hero__top, .hero__mid'), { y: -120, opacity: 0, ease: 'none' }, 0);
   tl.to(q('.hero__shade'), { opacity: 1, ease: 'none' }, 0);
   // autoAlpha = opacity + visibility. Opacity у подсказки занята мигающей CSS-анимацией,
   // а visibility: hidden прячет её поверх этого.
   tl.to(q('.scroll-hint'), { autoAlpha: 0, duration: 0.1, ease: 'none' }, 0);
 }
 
-// --- ABOUT: заголовок проявляется по строкам из-под маски, карточки поднимаются.
+// --- ABOUT: секция закрепляется, слова абзаца «зажигаются» по мере скролла,
+// портрет открывается шторкой снизу вверх.
 function aboutIn(q) {
   const section = q('.about')[0];
-  const split = SplitText.create(q('.about__title'), { type: 'lines', mask: 'lines' });
-  const tl = gsap.timeline({ scrollTrigger: once(section) });
-  tl.from(split.lines, { yPercent: 110, duration: 1.1, stagger: 0.12, ease: EASE })
-    .from(q('.about__lead, .about__head .btn-dark'), { opacity: 0, y: 20, duration: 0.8, ease: EASE }, 0.25)
-    .from(q('.bento .card'), { opacity: 0, y: 60, duration: 1, stagger: 0.08, ease: EASE }, 0.3);
+  const words = SplitText.create(q('.about__text'), { type: 'words' }).words;
+  const tl = gsap.timeline({
+    scrollTrigger: { trigger: section, start: 'top top', end: '+=90%', pin: true, scrub: 0.4 },
+  });
+  tl.fromTo(words, { opacity: 0.14 }, { opacity: 1, ease: 'none', stagger: 0.08 }, 0)
+    .fromTo(q('.inpill img'), { opacity: 0.25 }, { opacity: 1, ease: 'none', stagger: 0.3 }, 0.8)
+    .from(q('.about__photo'), { clipPath: 'inset(100% 0% 0% 0%)', ease: 'power2.out', duration: 1.2 }, 0)
+    .from(q('.about__photo img'), { scale: 1.25, ease: 'none', duration: 2.6 }, 0)
+    .from(q('.about__foot'), { opacity: 0, y: 20, duration: 0.5 }, '>-0.4');
 }
 
 // --- ALBUMS: секция закрепляется, обложки лежат стопкой в центре
@@ -179,4 +186,32 @@ function footerIn(q) {
   tl.from(split.chars, { yPercent: 100, duration: 1.4, stagger: 0.08, ease: EASE })
     .from(q('.hud-link'), { opacity: 0, x: -30, duration: 0.8, stagger: 0.06, ease: EASE }, 0.1)
     .from(q('.radar'), { opacity: 0, scale: 0.6, rotate: -90, duration: 1.4, ease: EASE }, 0.1);
+}
+
+// --- Бегущая строка в футере: чем быстрее скроллишь, тем быстрее она едет и сильнее наклоняется.
+// getAnimations() отдаёт CSS-анимацию элемента как объект, у которого можно менять скорость (playbackRate).
+function marqueeSpeed(q) {
+  const track = q('.marquee__track')[0];
+  const anim = track.getAnimations()[0];
+  if (!anim) return;
+  const skewTo = gsap.quickTo(track, 'skewX', { duration: 0.4, ease: 'power3.out' });
+  let rate = 1;
+  ScrollTrigger.create({
+    trigger: q('.footer')[0],
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: (self) => {
+      const v = self.getVelocity(); // пикселей в секунду, со знаком
+      rate = 1 + Math.min(6, Math.abs(v) / 250);
+      skewTo(gsap.utils.clamp(-18, 18, v / -90));
+    },
+  });
+  // Скорость плавно возвращается к обычной, когда скролл остановился.
+  const settle = () => {
+    rate += (1 - rate) * 0.06;
+    anim.playbackRate = rate;
+    if (Math.abs(rate - 1) < 0.02) skewTo(0);
+  };
+  gsap.ticker.add(settle);
+  return () => gsap.ticker.remove(settle);
 }

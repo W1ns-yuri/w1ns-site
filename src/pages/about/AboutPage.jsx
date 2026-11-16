@@ -64,8 +64,8 @@ export default function AboutPage() {
             {bio.facts.map((f) => <li key={f}>{f}</li>)}
           </ul>
         </div>
-        <div className="me-hero__photo">
-          <img src="/img/portrait.webp" alt="" />
+        <div className="me-hero__photo duotone">
+          <img src="/img/w1ns-portrait.webp" alt="W1NS" />
         </div>
       </section>
 
@@ -94,7 +94,7 @@ export default function AboutPage() {
         <ul className="collab__list">
           {bio.collab.map((c) => (
             <li key={c.name}>
-              <a className="collab__row" href={orderLink()}>
+              <a className="collab__row" data-cursor="НАПИСАТЬ" href={orderLink(`Привет! Пишу насчёт: ${c.name.toLowerCase()}`)} target="_blank" rel="noopener noreferrer">
                 <span className="collab__name">{c.name}</span>
                 <span className="collab__text">{c.text}</span>
                 <svg className="collab__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">

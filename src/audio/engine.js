@@ -15,6 +15,63 @@ export function getAudio() {
   return ctx;
 }
 
+// ---------------------------------------------------------
+// Общая шина и анализатор.
+// Весь звук сайта (драм-машина, превью, mp3) идёт не сразу в колонки,
+// а через одну точку — master. К ней подключён AnalyserNode: он «слушает»
+// звук и отдаёт громкость по частотам. Так сайт может пульсировать под бит.
+//   источник → master → analyser → колонки
+// ---------------------------------------------------------
+let master = null;
+let analyser = null;
+let bins = null;
+
+function out() {
+  if (!master) {
+    master = ctx.createGain();
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 1024;              // 512 частотных полос
+    analyser.smoothingTimeConstant = 0.35; // слабое сглаживание: удары остаются резкими
+    // Какой диапазон громкости растянуть на шкалу 0..255. По умолчанию верх −30 дБ,
+    // и громкий бит упирается в потолок (всё время 255). Поднимаем потолок до 0 дБ.
+    analyser.minDecibels = -55;
+    analyser.maxDecibels = -5;
+    bins = new Uint8Array(analyser.frequencyBinCount);
+    master.connect(analyser);
+    analyser.connect(ctx.destination);
+  }
+  return master;
+}
+
+// Средняя громкость (0..1) в диапазоне полос from..to.
+function band(from, to) {
+  let sum = 0;
+  for (let i = from; i < to; i++) sum += bins[i];
+  return sum / (to - from) / 255;
+}
+
+// Что сейчас звучит: бас (кик и 808), середина, верх (хэты). Все значения 0..1.
+// Вызывается каждый кадр из usePulse. Если звука ещё не было — вернёт null.
+export function readLevels() {
+  if (!analyser) return null;
+  analyser.getByteFrequencyData(bins);
+  return { bass: band(1, 5), mid: band(8, 60), high: band(120, 320) };
+}
+
+// Сырые полосы для живого эквалайзера: count столбиков 0..1.
+export function readBars(count) {
+  if (!analyser) return null;
+  analyser.getByteFrequencyData(bins);
+  const res = [];
+  for (let i = 0; i < count; i++) {
+    // Полосы берём по степенной шкале: внизу узкие, вверху широкие — так ближе к слуху.
+    const from = Math.floor(2 + Math.pow(i / count, 2) * 180);
+    const to = Math.floor(2 + Math.pow((i + 1) / count, 2) * 180) + 1;
+    res.push(band(from, to));
+  }
+  return res;
+}
+
 function noise(dur) {
   const len = Math.floor(ctx.sampleRate * dur);
   const buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -30,7 +87,7 @@ export function hit(row) {
   if (!ctx) return;
   const t = ctx.currentTime;
   const g = ctx.createGain();
-  g.connect(ctx.destination);
+  g.connect(out());
 
   if (row === 0) {
     const o = ctx.createOscillator();
@@ -84,7 +141,7 @@ function pluck(freq) {
   g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
   o.connect(f);
   f.connect(g);
-  g.connect(ctx.destination);
+  g.connect(out());
   o.start(t);
   o.stop(t + 0.37);
 }
@@ -114,11 +171,16 @@ export function stopPreview() {
 
 // Настоящее превью из mp3. Один плеер на весь сайт: новый трек выключает старый.
 let player = null;
-export function playFile(url, onEnd) {
+let playerOnStop = null; // кого предупредить, если плеер остановили извне
+export function playFile(url, onEnd, { loop = false, onStop = null } = {}) {
   stopPreview();
+  playerOnStop = onStop;
   player = new Audio(url);
+  player.loop = loop;
   player.volume = 0.9;
   player.onended = () => { player = null; if (onEnd) onEnd(); };
+  // Подключаем mp3 к общей шине, чтобы анализатор его «слышал».
+  if (getAudio()) ctx.createMediaElementSource(player).connect(out());
   player.play().catch(() => {});
 }
 
@@ -127,6 +189,7 @@ export function stopFile() {
   player.pause();
   player.onended = null;
   player = null;
+  if (playerOnStop) { const cb = playerOnStop; playerOnStop = null; cb(); }
 }
 
 // ---------------------------------------------------------
@@ -150,8 +213,8 @@ export function playMorse(word, pan = -1) {
   const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
   const out = ctx.createGain();
   out.gain.value = 0.18;
-  if (panner) { panner.pan.value = pan; out.connect(panner); panner.connect(ctx.destination); }
-  else out.connect(ctx.destination);
+  if (panner) { panner.pan.value = pan; out.connect(panner); panner.connect(out()); }
+  else out.connect(out());
 
   let t = ctx.currentTime + 0.05;
   for (const ch of word.toUpperCase()) {
@@ -193,7 +256,7 @@ export function creak() {
   g.gain.setValueAtTime(0, t);
   g.gain.linearRampToValueAtTime(0.35, t + 0.1);
   g.gain.linearRampToValueAtTime(0.001, t + 1.4);
-  o.connect(f); f.connect(g); g.connect(ctx.destination);
+  o.connect(f); f.connect(g); g.connect(out());
   o.start(t); o.stop(t + 1.45);
 }
 
@@ -206,7 +269,7 @@ export function tear() {
   const g = ctx.createGain();
   f.type = 'bandpass'; f.frequency.setValueAtTime(3000, t); f.frequency.exponentialRampToValueAtTime(600, t + 0.6);
   g.gain.setValueAtTime(0.6, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
-  n.connect(f); f.connect(g); g.connect(ctx.destination); n.start(t);
+  n.connect(f); f.connect(g); g.connect(out()); n.start(t);
 }
 
 // Птицы в поле: короткие свисты вверх.
@@ -222,7 +285,7 @@ export function birds() {
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(0.08, t + 0.02);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-    o.connect(g); g.connect(ctx.destination);
+    o.connect(g); g.connect(out());
     o.start(t); o.stop(t + 0.14);
   }
 }
@@ -239,7 +302,7 @@ export function rain(on) {
   const g = ctx.createGain();
   f.type = 'lowpass'; f.frequency.value = 1400;
   g.gain.value = 0.12;
-  src.connect(f); f.connect(g); g.connect(ctx.destination);
+  src.connect(f); f.connect(g); g.connect(out());
   src.start();
   rainNodes = { src };
 }
@@ -254,7 +317,7 @@ export function thunder() {
   g.gain.setValueAtTime(0, t);
   g.gain.linearRampToValueAtTime(0.9, t + 0.08);
   g.gain.exponentialRampToValueAtTime(0.001, t + 3);
-  n.connect(f); f.connect(g); g.connect(ctx.destination); n.start(t);
+  n.connect(f); f.connect(g); g.connect(out()); n.start(t);
 }
 
 // Сверчки ночного леса: высокий тон, который «стрекочет» через модуляцию громкости.
@@ -272,7 +335,7 @@ export function forest(on) {
   lfo.type = 'square'; lfo.frequency.value = 28;
   lfoGain.gain.value = 0.025;
   lfo.connect(lfoGain); lfoGain.connect(amp.gain);
-  tone.connect(amp); amp.connect(ctx.destination);
+  tone.connect(amp); amp.connect(out());
   tone.start(); lfo.start();
   crickets = [tone, lfo];
 }

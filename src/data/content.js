@@ -28,16 +28,21 @@ export const siteNav = [
   { href: '/about', label: 'ОБО МНЕ' },
 ];
 
-// Контакты. Впиши сюда свои ссылки, и кнопки «Хочу этот бит» / «Написать»
-// начнут вести прямо в Telegram. Пока пусто — ведут к блоку контактов на главной.
+// Контакты и соцсети — меняются только здесь.
 export const contacts = {
-  telegram: '', // например 'https://t.me/твой_ник'
-  email: '',
+  telegram: 'https://t.me/yuri_w1ns',
+  telegramName: '@yuri_w1ns',
+  instagram: 'https://instagram.com/yuri_w1ns',
+  youtube: 'https://youtube.com/@prodW1ns',
+  soundcloud: 'https://soundcloud.com/old-line',
+  crewYoutube: 'https://youtube.com/@oldlinecrew1',
 };
 
-// Ссылка для заявки: если Telegram вписан — туда, иначе к контактам на главной.
-export function orderLink() {
-  return contacts.telegram || '/#contacts';
+// Ссылка для заявки. Если передать текст, Telegram откроется с уже набранным сообщением:
+//   orderLink('Хочу бит Escape') → https://t.me/yuri_w1ns?text=Хочу%20бит%20Escape
+// encodeURIComponent превращает пробелы и кириллицу в безопасный для ссылки вид.
+export function orderLink(text) {
+  return text ? `${contacts.telegram}?text=${encodeURIComponent(text)}` : contacts.telegram;
 }
 
 export const releases = [
@@ -85,16 +90,8 @@ export const packPreview = Array.from({ length: 23 }, (_, i) =>
   `${kinds[i % kinds.length]} · ${String(i + 1).padStart(3, '0')}`
 );
 
-// Что уже выпущено — для карточки «Обо мне» на главной.
-export const timeline = [
-  { year: 'ESCAPE', what: 'альбом · 5 треков · с CASSETTE' },
-  { year: 'MOON', what: 'альбом · 6 треков' },
-  { year: 'SCORPION', what: 'сэмпл-пак · 100 сэмплов' },
-];
 
-export const styles = ['TRAP', 'SUPERTRAP', 'LOVE MUSIC', 'AMBIENT', 'DNB', 'EXPERIMENTAL'];
 
-export const stack = ['FL STUDIO', 'REACT', 'JS', 'SUPABASE', '808', 'SERUM'];
 
 export const genres = [
   { name: 'TRAP', bpm: '130–150 BPM', desc: 'База: тяжёлый 808, хэты с роллами, мрачные мелодии.', a: '#1D4F86', b: '#5B9BD5' },
@@ -106,10 +103,10 @@ export const genres = [
 ];
 
 export const channels = [
-  { label: 'YOUTUBE', num: 'CH.01', href: '#' },
-  { label: 'SOUNDCLOUD', num: 'CH.02', href: '#' },
-  { label: 'TELEGRAM', num: 'CH.03', href: '#' },
-  { label: 'INSTAGRAM', num: 'CH.04', href: '#' },
+  { label: 'TELEGRAM', num: 'CH.01', href: contacts.telegram },
+  { label: 'INSTAGRAM', num: 'CH.02', href: contacts.instagram },
+  { label: 'YOUTUBE', num: 'CH.03', href: contacts.youtube },
+  { label: 'SOUNDCLOUD', num: 'CH.04', href: contacts.soundcloud },
 ];
 
 // Стартовый паттерн драм-машины: номера шагов (0–15), где звучит инструмент.

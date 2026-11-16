@@ -1,61 +1,36 @@
-import { timeline, stack, styles } from '../data/content.js';
+import { releases, contacts } from '../data/content.js';
+import { TransitionLink } from './PageTransition.jsx';
 
-// «Обо мне» в виде bento-сетки: карточки разного размера на CSS grid.
+// Маленькая обложка-«пилюля» прямо внутри текста. Ведёт на страницу релиза.
+function Pill({ id }) {
+  const r = releases.find((x) => x.id === id);
+  return (
+    <TransitionLink to={r.page} label={r.title} className="inpill" data-cursor="ОТКРЫТЬ">
+      <img src={r.cover} alt="" />
+      {r.title}
+    </TransitionLink>
+  );
+}
+
+// «Обо мне» на главной: один крупный абзац вместо сетки карточек.
+// Слова «зажигаются» по мере скролла (анимация в src/animations/homeScroll.js),
+// обложки релизов стоят прямо в тексте. Полная история — на странице /about.
 export default function About() {
   return (
     <section id="about" className="section about" aria-label="Обо мне">
       <div className="about__inner">
-        <div className="about__head">
-          <div>
-            <h2 className="about__title">Заходи в мой<br />холодный мир</h2>
-            <p className="about__lead">
-              W1NS — битмейкер со стажем. Пишу в FL Studio trap, supertrap, love music, ambient, DnB и экспериментальные биты. Уже вышли альбомы ESCAPE и MOON и сэмпл-пак SCORPION.
-            </p>
-          </div>
-          <a href="#contacts" className="btn-dark">Написать мне</a>
-        </div>
-
-        <div className="bento">
-          <div className="card card--photo">
-            <div className="card--photo__glow" aria-hidden="true" />
-            <div className="card--photo__circle" aria-hidden="true" />
-            <span className="card--photo__placeholder">[ТВОЁ ФОТО]</span>
-            <span className="pill pill--top">Битмейкер · FL Studio</span>
-            <div className="timeline">
-              {timeline.map((t) => (
-                <div key={t.what} className="timeline__row">
-                  <span className="mono-label">{t.year}</span>
-                  <span>{t.what}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card card--stack">
-            <div className="card--stack__keys" aria-hidden="true" />
-            <span className="pill pill--top">Мой сетап</span>
-            <div className="stack">
-              {stack.map((s) => <span key={s}>{s}</span>)}
-            </div>
-          </div>
-
-          <div className="card card--quote">
-            <span className="pill">Стили</span>
-            <div className="styles-list">
-              {styles.map((st) => <span key={st}>{st}</span>)}
-            </div>
-            <div className="card--quote__sign"><b>W1NS</b><span>битмейкер</span></div>
-          </div>
-
-          <div className="card card--contact">
-            <div className="planet" aria-hidden="true" />
-            <span className="pill">Связь</span>
-            <div className="card--contact__links">
-              <span>[telegram]</span>
-              <span>[email]</span>
-            </div>
+        <div className="about__main">
+          <p className="about__text">
+            Я W1NS. Пишу trap, supertrap, ambient и всё, что не влезает в жанр. Выпустил <Pill id="escape" />, <Pill id="moon" /> и пак <Pill id="scorpion" />. Каждый бит собираю как сцену из фильма.
+          </p>
+          <div className="about__foot">
+            <TransitionLink to="/about" label="W1NS" className="about__btn about__btn--solid" data-magnetic>ВСЯ ИСТОРИЯ</TransitionLink>
+            <a href={contacts.telegram} target="_blank" rel="noopener noreferrer" className="about__btn">НАПИСАТЬ В TELEGRAM</a>
           </div>
         </div>
+        <TransitionLink to="/about" label="W1NS" className="about__photo duotone" data-cursor="КТО Я" aria-label="Обо мне">
+          <img src="/img/w1ns-portrait.webp" alt="W1NS" />
+        </TransitionLink>
       </div>
     </section>
   );

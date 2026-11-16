@@ -148,7 +148,7 @@ export default function BeatsPage() {
                 </div>
 
                 {/* Волна — настоящая громкость превью. Клик перематывает. */}
-                <div className="wave" onClick={(e) => seek(beat, e)} role="presentation">
+                <div className="wave" onClick={(e) => seek(beat, e)} role="presentation" data-cursor="МОТАТЬ">
                   {beat.peaks.map((p, i) => (
                     <span
                       key={i}
@@ -159,7 +159,7 @@ export default function BeatsPage() {
                 </div>
 
                 <span className="data beat__time">{isCurrent ? fmt(time) : fmt(beat.duration)}</span>
-                <a className="btn btn--ghost beat__buy" href={orderLink()}>ХОЧУ ЭТОТ БИТ</a>
+                <a className="btn btn--ghost beat__buy" href={orderLink(`Привет! Хочу бит ${beat.title}`)} target="_blank" rel="noopener noreferrer">ХОЧУ ЭТОТ БИТ</a>
               </li>
             );
           })}
@@ -180,7 +180,7 @@ export default function BeatsPage() {
             </article>
           ))}
         </div>
-        <a className="btn btn--light" href={orderLink()}>НАПИСАТЬ И ДОГОВОРИТЬСЯ</a>
+        <a className="btn btn--light" href={orderLink('Привет! Хочу узнать про лицензии на биты')} target="_blank" rel="noopener noreferrer">НАПИСАТЬ В TELEGRAM</a>
       </section>
 
       <NextPage to="/escape" title="ESCAPE" hint="ЭТИ БИТЫ — САУНДТРЕК К ФИЛЬМУ. СМОТРЕТЬ" />
@@ -201,7 +201,7 @@ export default function BeatsPage() {
             <div className="dock__bar" onClick={(e) => seek(current, e)} role="presentation">
               <span style={{ transform: `scaleX(${progress})` }} />
             </div>
-            <a className="btn btn--light" href={orderLink()}>ХОЧУ ЭТОТ БИТ</a>
+            <a className="btn btn--light" href={orderLink(`Привет! Хочу бит ${current.title}`)} target="_blank" rel="noopener noreferrer">ХОЧУ ЭТОТ БИТ</a>
           </>
         )}
       </div>
