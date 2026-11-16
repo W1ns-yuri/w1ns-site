@@ -92,18 +92,25 @@ function heroOut(q) {
     },
   });
   const spread = [-1.5, -0.5, 0.5, 1.5]; // W и S разъезжаются сильнее, 1 и N меньше
+  // ВАЖНО: везде fromTo с явным стартом, а не просто to().
+  // to() берёт стартовое значение «какое сейчас у элемента». Но при загрузке у hero идёт CSS-интро:
+  // буквы ещё внизу, интерфейс ещё прозрачный. Если GSAP замерит их в этот момент,
+  // он запомнит «старт = спрятано», и после интро всё пропадёт. Явный старт от этого защищает.
+
   // Буквы стоят внизу экрана, а About наезжает как раз снизу. Чтобы он их не «съел»,
   // буквы убегают вверх быстрее его края (больше высоты экрана), каждая со своей скоростью.
   q('.hero__letter-in').forEach((el, i) => {
-    tl.to(el, { y: () => -window.innerHeight * (1.08 + i * 0.14), xPercent: spread[i] * 12, rotate: spread[i] * 4, ease: 'none' }, 0);
+    tl.fromTo(el,
+      { y: 0, xPercent: 0, rotate: 0 },
+      { y: () => -window.innerHeight * (1.08 + i * 0.14), xPercent: spread[i] * 12, rotate: spread[i] * 4, ease: 'none' }, 0);
   });
-  tl.to(q('.hero__top, .hero__mid'), { y: -120, opacity: 0, ease: 'none', duration: 0.3 }, 0);
+  tl.fromTo(q('.hero__top, .hero__mid'), { y: 0, opacity: 1 }, { y: -120, opacity: 0, ease: 'none', duration: 0.3 }, 0);
   // GSAP умеет анимировать и CSS-переменные. --zoom читает .hero__bg-wrap (scale: var(--zoom)).
   tl.fromTo(hero, { '--zoom': 1 }, { '--zoom': 1.35, ease: 'none' }, 0);
-  tl.to(q('.hero__shade'), { opacity: 1, ease: 'power1.in' }, 0);
+  tl.fromTo(q('.hero__shade'), { opacity: 0 }, { opacity: 1, ease: 'power1.in' }, 0);
   // autoAlpha = opacity + visibility. Opacity у подсказки занята мигающей CSS-анимацией,
   // а visibility: hidden прячет её поверх этого.
-  tl.to(q('.scroll-hint'), { autoAlpha: 0, duration: 0.1, ease: 'none' }, 0);
+  tl.fromTo(q('.scroll-hint'), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.1, ease: 'none' }, 0);
 }
 
 // --- ABOUT: секция закрепляется, слова абзаца «зажигаются» по мере скролла,
