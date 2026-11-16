@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { TransitionLink } from './PageTransition.jsx';
 import { releases, packPreview } from '../data/content.js';
 import { getAudio, startPreview, stopPreview, playFile } from '../audio/engine.js';
 
@@ -65,7 +65,7 @@ export default function Albums() {
           <div className="tracklist">
             <div className="tracklist__head">
               <span>{open.type === 'pack' ? `${open.title} — SAMPLE PACK · ${open.totalSamples}` : `${open.title} — TRACKLIST`}</span>
-              {open.page ? <Link to={open.page} className="tracklist__link">ОТКРЫТЬ ФИЛЬМ-АЛЬБОМ →</Link> : <span>HOVER = PREVIEW</span>}
+              {open.page ? <TransitionLink to={open.page} label={open.title} className="tracklist__link">ОТКРЫТЬ ФИЛЬМ-АЛЬБОМ →</TransitionLink> : <span>HOVER = PREVIEW</span>}
             </div>
 
             {open.type === 'pack' ? (
