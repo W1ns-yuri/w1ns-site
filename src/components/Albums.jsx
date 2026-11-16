@@ -65,7 +65,7 @@ export default function Albums() {
           <div className="tracklist">
             <div className="tracklist__head">
               <span>{open.type === 'pack' ? `${open.title} — SAMPLE PACK · ${open.totalSamples}` : `${open.title} — TRACKLIST`}</span>
-              {open.page ? <TransitionLink to={open.page} label={open.title} className="tracklist__link">ОТКРЫТЬ ФИЛЬМ-АЛЬБОМ →</TransitionLink> : <span>HOVER = PREVIEW</span>}
+              {open.page ? <TransitionLink to={open.page} label={open.title} className="tracklist__link">{open.pageLabel}</TransitionLink> : <span>HOVER = PREVIEW</span>}
             </div>
 
             {open.type === 'pack' ? (
@@ -99,7 +99,6 @@ export default function Albums() {
                       <span style={{ animationDuration: '0.45s' }} />
                       <span style={{ animationDuration: '0.62s' }} />
                     </span>
-                    <span className="track__meta">[BPM] · [тон]</span>
                   </div>
                 ))}
               </div>

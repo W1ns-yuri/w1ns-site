@@ -64,11 +64,14 @@ export default function Hero() {
           </a>
 
           <nav className="topnav" aria-label="Навигация по сайту">
-            {topNav.map((item, i) => (
-              <a key={item.href} href={item.href} className={i === 0 ? 'is-current' : ''}>
-                {item.label}
-              </a>
-            ))}
+            {topNav.map((item) =>
+              // Ссылка на страницу идёт через киношный переход, ссылка-якорь — обычная прокрутка.
+              item.href.startsWith('/') ? (
+                <TransitionLink key={item.href} to={item.href} label={item.label}>{item.label}</TransitionLink>
+              ) : (
+                <a key={item.href} href={item.href}>{item.label}</a>
+              )
+            )}
           </nav>
 
           <a href="#contacts" className="btn-collab">

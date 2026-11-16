@@ -158,13 +158,14 @@ function labIn(q) {
   const tl = gsap.timeline({ scrollTrigger: once(section, 'top 60%') });
   tl.from(split.chars, { yPercent: 110, duration: 0.9, stagger: 0.05, ease: EASE })
     .from(q('.lab__lead, .lab__controls'), { opacity: 0, y: 16, duration: 0.7, ease: EASE }, 0.2)
+    // Только opacity: у клеток в CSS есть transition на transform (отклик на клик),
+    // и если GSAP тоже будет двигать transform, они начнут спорить друг с другом.
     .from(cells, {
       opacity: 0,
-      scale: 0.4,
-      duration: 0.5,
-      ease: 'back.out(2)',
+      duration: 0.4,
+      ease: 'power2.out',
       // Задержка зависит от номера колонки (0–15), а не от порядка в DOM.
-      delay: (i) => 0.25 + (i % 16) * 0.035 + Math.floor(i / 16) * 0.02,
+      delay: (i) => 0.25 + (i % 16) * 0.04 + Math.floor(i / 16) * 0.02,
     }, 0);
 }
 

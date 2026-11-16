@@ -1,0 +1,69 @@
+/* =========================================================
+   /moon
+   ========================================================= */
+.moon { background: #000308; }
+.moon-hero { position: relative; height: 100vh; min-height: 600px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+/* Круг с картинкой луны. Картинка с запасом по краям, поэтому 119%: диск точно заполняет круг. */
+.moon-hero__moon { position: absolute; z-index: 1; left: 50%; top: 50%; width: 78vh; height: 78vh; margin: -39vh 0 0 -39vh; border-radius: 50%; background: url(/img/moon.webp) center / 119% no-repeat; box-shadow: 0 0 140px rgba(91,155,213,0.28); }
+/* Заголовок написан дважды: белый лежит ЗА луной, контурный — ПЕРЕД ней.
+   Получается, что буквы уходят за луну, но их контур виден сквозь неё. */
+.moon-hero__title { position: absolute; left: 0; right: 0; top: 50%; margin: -0.42em 0 0; text-align: center; font-family: var(--font-display); font-weight: 900; font-size: 23vw; line-height: 0.84; letter-spacing: -0.03em; white-space: nowrap; }
+.moon-hero__title--solid { z-index: 0; color: #FFFFFF; }
+.moon-hero__title--line { z-index: 2; color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,0.9); }
+.moon-hero__meta { position: absolute; z-index: 3; left: 0; right: 0; bottom: 40px; margin: 0; text-align: center; color: var(--ice); }
+
+/* Фазы: слева луна с тенью, справа шесть треков */
+.phases { --phase: 0; position: relative; height: 100vh; padding: 0 var(--pad-x); display: grid; grid-template-columns: 46vw 1fr; align-items: center; column-gap: 4vw; overflow: hidden; }
+.phases__moon { position: relative; justify-self: center; width: min(62vh, 38vw); aspect-ratio: 1; border-radius: 50%; overflow: hidden; box-shadow: 0 0 120px rgba(91,155,213,0.22); }
+/* Картинка луны с запасом по краям, поэтому увеличиваем и центрируем, чтобы диск точно заполнил круг */
+.phases__disc { position: absolute; inset: 0; background: url(/img/moon.webp) center / 120% no-repeat; }
+/* Тень — такой же круг. Сдвигаясь вправо, он открывает сначала серп, потом всю луну */
+.phases__shadow { position: absolute; inset: -2%; border-radius: 50%; background: #000308; box-shadow: 0 0 40px 20px #000308; transform: translateX(calc(var(--phase) * 118%)); }
+
+.phases__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(234,243,246,0.14); }
+.phase { display: grid; grid-template-columns: 48px 1fr auto; align-items: baseline; column-gap: 20px; padding: 22px 0; border-bottom: 1px solid rgba(234,243,246,0.14); opacity: 0.3; transition: opacity 400ms ease-out, padding 600ms cubic-bezier(0.16, 1, 0.3, 1); }
+.phase.is-past { opacity: 0.55; }
+.phase.is-active { opacity: 1; padding-left: 20px; }
+.phase__title { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 2.3vw, 38px); letter-spacing: -0.02em; }
+.phase.is-active .phase__name { color: var(--mint); }
+
+/* Про альбом */
+.sleeve { padding: 160px var(--pad-x); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 7vw; align-items: center; }
+.sleeve__cover { display: block; width: 100%; height: auto; }
+.sleeve__title { margin: 0 0 28px; font-family: var(--font-display); font-weight: 900; font-size: clamp(40px, 5vw, 84px); line-height: 0.95; letter-spacing: -0.03em; }
+.sleeve__text p { margin: 0 0 36px; max-width: 42ch; font-size: 19px; line-height: 1.6; color: #C3D3E2; text-wrap: pretty; }
+
+/* =========================================================
+   /scorpion
+   ========================================================= */
+.scorp-hero { position: relative; height: 100vh; min-height: 620px; overflow: hidden; padding: 0 var(--pad-x) 36px; display: flex; flex-direction: column; justify-content: flex-end; }
+.scorp-hero__bg { position: absolute; inset: -12% -4%; background: url(/img/ice.webp) center / cover; }
+.scorp-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(90% 80% at 70% 30%, rgba(1,4,11,0) 0%, rgba(1,4,11,0.75) 100%); pointer-events: none; }
+.scorp-hero > * { z-index: 2; }
+.scorp-hero__sticker { position: absolute; right: 12vw; top: 21vh; width: 230px; height: 230px; transform: rotate(-7deg); border: 6px solid #FFFFFF; box-shadow: 0 30px 60px rgba(0,0,0,0.55); }
+.scorp-hero__lead { position: absolute; left: var(--pad-x); top: 150px; width: 400px; margin: 0; font-size: 18px; line-height: 1.5; text-wrap: pretty; }
+.scorp-hero__bottom { position: relative; }
+.scorp-hero__title { margin: 0 0 0 -0.04em; font-family: var(--font-display); font-weight: 900; font-size: 14.6vw; line-height: 0.86; letter-spacing: -0.04em; white-space: nowrap; }
+.scorp-hero__stat { position: absolute; right: 0; bottom: 100%; margin: 0 0 20px; display: flex; align-items: baseline; gap: 14px; }
+.scorp-hero__count { font-family: var(--font-display); font-weight: 300; font-size: 72px; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--mint); }
+
+.field { padding: 120px var(--pad-x) 140px; }
+.field__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-bottom: 40px; }
+.field__title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: clamp(40px, 5vw, 84px); line-height: 0.95; letter-spacing: -0.03em; }
+.field__filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+.grid100 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+/* --near (0..1) приходит из JS: чем ближе курсор, тем ярче клетка.
+   Важно: в transition нет opacity и transform — ими управляет GSAP, и CSS-переход бы с ним конфликтовал. */
+.cell100 {
+  --near: 0; aspect-ratio: 1.25; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
+  border-radius: 3px; font-family: var(--font-mono);
+  background: color-mix(in srgb, var(--mint) calc(var(--near) * 85%), #0A1626);
+  color: color-mix(in srgb, var(--ink) calc(var(--near) * 100%), var(--ice));
+  transition: filter 400ms ease-out, background 250ms ease-out, color 250ms ease-out;
+}
+.cell100__num { font-size: 11px; opacity: 0.6; font-variant-numeric: tabular-nums; }
+.cell100__kind { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+/* Отфильтрованные клетки гаснут и не реагируют на курсор (!important перебивает --near, который пишет JS) */
+.cell100.is-off { filter: brightness(0.3); --near: 0 !important; }
+.field__foot { margin-top: 40px; display: flex; justify-content: space-between; align-items: center; }
